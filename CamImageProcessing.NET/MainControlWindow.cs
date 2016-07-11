@@ -32,8 +32,17 @@ namespace CamImageProcessing.NET
         public MainControlWindow()
         {
             InitializeComponent();
+            // Show header button
             this.button2.Enabled = false;
+            // Open image button
             this.button3.Enabled = false;
+            // Zoom factor for displaying original image combobox
+            comboBox1.TabIndex = 4;
+            comboBox1.Items.AddRange(new object[] {"Zoom 1:1",
+                        "Zoom 1:2",
+                        "Zoom 1:4",
+                        "Zoom 1:8"});
+
         }
 
          // Open header file
@@ -176,5 +185,10 @@ namespace CamImageProcessing.NET
             }
         }
 
+        // Show zoomed original image (zoom factor from the combo).
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
