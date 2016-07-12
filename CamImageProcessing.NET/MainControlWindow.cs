@@ -26,8 +26,10 @@ namespace CamImageProcessing.NET
         CameraImageHeader HeaderOrigImage;
         CameraImageHeader HeaderVoid;
 
-        // Mat of original and processed images.
-        Mat MatOrigImage;
+        // Original image, see CameraImage class desc.
+        CameraImage OrigImage;
+        // Processed image
+        CameraImage ProcessedImage;
 
         public MainControlWindow()
         {
@@ -37,12 +39,28 @@ namespace CamImageProcessing.NET
             // Open image button
             this.button3.Enabled = false;
             // Zoom factor for displaying original image combobox
+            comboBox1.Name = "Zoom image";
             comboBox1.TabIndex = 4;
             comboBox1.Items.AddRange(new object[] {"Zoom 1:1",
                         "Zoom 1:2",
                         "Zoom 1:4",
                         "Zoom 1:8"});
-
+            
+            comboBox1.Enabled = false;
+            // Setup of controls for image processing grouped in the box
+            groupBox1.Enabled = false;
+            ColorMapCombobox.Items.AddRange(new object[] {ColorMapType.Autumn,
+                        ColorMapType.Bone,
+                        ColorMapType.Cool,
+                        ColorMapType.Hot,
+                        ColorMapType.Hsv,
+                        ColorMapType.Jet,
+                        ColorMapType.Ocean,
+                        ColorMapType.Pink,
+                        ColorMapType.Rainbow,
+                        ColorMapType.Spring,
+                        ColorMapType.Summer,
+                        ColorMapType.Winter} );
         }
 
          // Open header file
@@ -67,6 +85,7 @@ namespace CamImageProcessing.NET
                             using (System.IO.StreamReader srReader = new System.IO.StreamReader(myStream))
                             {
                                 // Insert code to read the stream here.
+                                TextReadout.Clear();
                                 string str1 = "";
                                 while ((str1 = srReader.ReadLine()) != null)
                                 {
@@ -84,21 +103,29 @@ namespace CamImageProcessing.NET
                 {
                     MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
                 }
-            } 
-            HeaderVoid = new CameraImageHeader();
-            HeaderOrigImage = HeaderVoid.TryTextList(TextReadout);
-
-            if (HeaderOrigImage.isGoodHeader)
-            {
-                MessageBox.Show(TextReadout.Count().ToString() + " lines read from the file, header: OK", "", MessageBoxButtons.OK);
-                this.button2.Enabled = true;
-                this.button3.Enabled = true;
             }
-            else
+            try
             {
-                MessageBox.Show(TextReadout.Count().ToString() + " lines read from the file, header: BAD", "", MessageBoxButtons.OK);
-                this.button2.Enabled = false;
-                this.button3.Enabled = false;
+                
+                HeaderVoid = new CameraImageHeader();
+                HeaderOrigImage = HeaderVoid.TryTextList(TextReadout);
+
+                if (HeaderOrigImage.isGoodHeader)
+                {
+                    MessageBox.Show(TextReadout.Count().ToString() + " lines read from the file, header: OK", "", MessageBoxButtons.OK);
+                    this.button2.Enabled = true;
+                    this.button3.Enabled = true;
+                }
+                else
+                {
+                    MessageBox.Show(TextReadout.Count().ToString() + " lines read from the file, header: BAD", "", MessageBoxButtons.OK);
+                    this.button2.Enabled = false;
+                    this.button3.Enabled = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: could not create headers. Original error: " + ex.Message);
             }
 
         }
@@ -137,9 +164,21 @@ namespace CamImageProcessing.NET
                             {
                                 br1.BaseStream.Position = 0;
                                 ImageReadout.Clear();
+                                // Prepare progress bar to show loading of an image
+                                progressBar1.Minimum = 1;
+                                progressBar1.Maximum = 100;
+                                progressBar1.Step = 1;
+                                progressBar1.Value = 1;
+                                long posDelta = (long)br1.BaseStream.Length / 100;
+                                long pbStep = 1;
                                 while (br1.BaseStream.Position != br1.BaseStream.Length)
                                 {
                                     ImageReadout.Add( br1.ReadUInt16() );
+                                    if (br1.BaseStream.Position >= (long)posDelta * pbStep)
+                                    {
+                                        progressBar1.PerformStep();
+                                        ++pbStep;
+                                    }
                                 }
                             }
 
@@ -151,16 +190,31 @@ namespace CamImageProcessing.NET
                             // Read OK, so we can create EmguCV Mat structure
                             try
                             {
-                                UInt16[] ArrayOrigImage = ImageReadout.ToArray();
-                                System.Runtime.InteropServices.GCHandle handle = System.Runtime.InteropServices.GCHandle.Alloc(ArrayOrigImage, System.Runtime.InteropServices.GCHandleType.Pinned);
-                                MatOrigImage = new Mat((int)HeaderOrigImage.SizeY, (int)HeaderOrigImage.SizeX, DepthType.Cv16U, 1, handle.AddrOfPinnedObject(), (int)HeaderOrigImage.SizeX*2);
-                                handle.Free();
-                                string WindowImage1 = "Original Image";  //The name of the window
-                                CvInvoke.NamedWindow(WindowImage1);      //Create the window using the specific name
-                                CvInvoke.Imshow(WindowImage1, MatOrigImage); //Show the image
-                                CvInvoke.WaitKey(0);  //Wait for the key pressing event
-                                CvInvoke.DestroyWindow(WindowImage1); //Destroy the window if key is pressed
-
+                                OrigImage = new CameraImage((Int32)HeaderOrigImage.SizeY, (Int32)HeaderOrigImage.SizeX, 1, ImageReadout, "Original Image");
+                                if (OrigImage.SizeX == HeaderOrigImage.SizeX && OrigImage.SizeY == HeaderOrigImage.SizeY)
+                                {
+                                    //MessageBox.Show("CameraImage OK; sizes: " + OrigImage.SizeX + ", " + OrigImage.SizeY, "", MessageBoxButtons.OK);
+                                    comboBox1.Enabled = true;
+                                    label1.Text = OrigImage.GetProperties;
+                                }
+                                else
+                                {
+                                    //MessageBox.Show("CameraImage BAD; sizes: " + OrigImage.SizeX + ", " + OrigImage.SizeY, "", MessageBoxButtons.OK);
+                                    comboBox1.Enabled = false;
+                                }
+                                // Create image for processing
+                                ProcessedImage = OrigImage.Clone("Processed Image");
+                                if (ProcessedImage.SizeX == OrigImage.SizeX && ProcessedImage.SizeY == OrigImage.SizeY)
+                                {
+                                    //MessageBox.Show("CameraImage OK; sizes: " + OrigImage.SizeX + ", " + OrigImage.SizeY, "", MessageBoxButtons.OK);
+                                    groupBox1.Enabled = true;
+                                    //label1.Text = OrigImage.GetProperties;
+                                }
+                                else
+                                {
+                                    //MessageBox.Show("CameraImage BAD; sizes: " + OrigImage.SizeX + ", " + OrigImage.SizeY, "", MessageBoxButtons.OK);
+                                    comboBox1.Enabled = false;
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -188,7 +242,36 @@ namespace CamImageProcessing.NET
         // Show zoomed original image (zoom factor from the combo).
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            string item = comboBox1.SelectedItem.ToString();
+            byte SelectedZoom = Convert.ToByte(item.Substring(item.Length-1, 1));
+            OrigImage.ShowZoomed(SelectedZoom);
+            label1.Text = OrigImage.GetProperties;
+        }
+        // Mult-purpose progress bar to visualize some process (load image, processing image).
+        private void progressBar1_Click(object sender, EventArgs e)
+        {
 
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ColorMapCombobox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ProcessedImage.ApplyColorMap((ColorMapType)ColorMapCombobox.SelectedItem);
+
+        }
+        // Group of controls for processing image
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ApplyButton_Click(object sender, EventArgs e)
+        {
+            ProcessedImage.ShowZoomed(2);
         }
     }
 }
