@@ -114,6 +114,13 @@ namespace CamImageProcessing.NET
             openFileDialog1.FilterIndex = 2;
             openFileDialog1.RestoreDirectory = true;
 
+            // Setup progress bar to visualize reading.
+            progressBar1.Visible = true;
+            progressBar1.Minimum = 1;
+            progressBar1.Maximum = 100;
+            progressBar1.Step = 1;
+            progressBar1.Value = 1;
+
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 try
@@ -128,13 +135,23 @@ namespace CamImageProcessing.NET
                             {
                                 br1.BaseStream.Position = 0;
                                 ImageReadout.Clear();
-                                while (br1.BaseStream.Position != br1.BaseStream.Length)
+                                long posDelta = (long)br1.BaseStream.Length / 100;
+                                int pbarStep = 0;
+                                while ( br1.BaseStream.Position != br1.BaseStream.Length )
                                 {
                                     ImageReadout.Add( br1.ReadUInt16() );
+                                    if ( br1.BaseStream.Position >= (long)pbarStep*posDelta )
+                                    {
+                                        progressBar1.PerformStep();
+                                        ++pbarStep;
+                                    }
                                 }
                             }
 
                         }
+                        // Return progress bar position back.
+                        //progressBar1.Value = 1;
+
                         Int32 SamplesRead = ImageReadout.Count() - 4;   // Do not know the reason.
                         if ( SamplesRead == HeaderOrigImage.SizeX*HeaderOrigImage.SizeY )
                         {
@@ -176,5 +193,9 @@ namespace CamImageProcessing.NET
             }
         }
 
+        private void progressBar1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

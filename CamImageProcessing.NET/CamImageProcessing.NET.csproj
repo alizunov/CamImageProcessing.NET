@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CameraImage.cs" />
     <Compile Include="CameraImageHeader.cs" />
     <Compile Include="MainControlWindow.cs">
       <SubType>Form</SubType>
