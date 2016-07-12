@@ -260,7 +260,8 @@ namespace CamImageProcessing.NET
 
         private void ColorMapCombobox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ProcessedImage.ApplyColorMap((ColorMapType)ColorMapCombobox.SelectedItem);
+            ProcessedImage.ApplyColorMap(ColorMapType.Hot);
+            //ProcessedImage.ApplyColorMap((ColorMapType)ColorMapCombobox.SelectedItem);
 
         }
         // Group of controls for processing image

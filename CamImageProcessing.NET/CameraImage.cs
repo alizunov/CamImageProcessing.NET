@@ -204,6 +204,7 @@ namespace CamImageProcessing.NET
         public void ApplyColorMap(ColorMapType ColorMap)
         {
             Mat tmpMat = SrcMat.Clone();
+            SrcMat.ConvertTo(tmpMat, DepthType.Cv8U, 0.00390625);
             CvInvoke.ApplyColorMap(tmpMat, SrcMat, ColorMap);
         }
     }
