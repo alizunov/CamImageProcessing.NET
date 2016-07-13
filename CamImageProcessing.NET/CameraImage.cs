@@ -18,13 +18,23 @@ namespace CamImageProcessing.NET
 {
     class CameraImage
     {
+        // Main source Mat
         private Mat SrcMat;
+        // 8-bit scaled copy to use with methods expecting 8-bit images
+        private Mat SrcMat8bit;
+
         private byte[] AllowedDownsampleFactor = { 1, 2, 4, 8 };
-        private byte CurrentDownsampleFactor;
         private string ImageNameBase;
 
+        // Parameters of a linear transform NewMat = (OldMat - Offset)*Scale
+        private UInt16 Offset;
+        private double Scale;
+
+        public byte CurrentDownsampleFactor;
         // Currently only 1 channel (grayscale) implemented in most methods.
         public Int32 Nchannels;
+        public DepthType Depth;
+        public bool shouldUse8bit;
         public List<double> minList;
         public List<double> maxList;
         public List<Point> minLocationsList;
@@ -41,28 +51,31 @@ namespace CamImageProcessing.NET
             maxList = new List<double>(Nchannels);
             minLocationsList = new List<Point>(Nchannels);
             maxLocationsList = new List<Point>(Nchannels);
+            Depth = SrcMat.Depth;
             // Fill lists of min / max and location values per channel
-            this.MinMax();
+            MinMax();
 
             ImageNameBase = ImageName;
             // 0 - to activate zoom 1:1
-            CurrentDownsampleFactor = 0;
+            CurrentDownsampleFactor = 1;
         }
         // ctor which clones Mat
         public CameraImage(Mat RefMat, string ImageName)
         {
             SrcMat = RefMat.Clone();
 
+            Nchannels = RefMat.NumberOfChannels;
             minList = new List<double>(Nchannels);
             maxList = new List<double>(Nchannels);
             minLocationsList = new List<Point>(Nchannels);
             maxLocationsList = new List<Point>(Nchannels);
+            Depth = SrcMat.Depth;
             // Fill lists of min / max and location values per channel
-            this.MinMax();
+            MinMax();
 
             ImageNameBase = ImageName;
             // 0 - to activate zoom 1:1
-            CurrentDownsampleFactor = 0;
+            CurrentDownsampleFactor = 1;
         }
         // X-size of Mat
         public Int32 SizeX
@@ -124,6 +137,7 @@ namespace CamImageProcessing.NET
             {
                 string gen = "Size: " + this.SizeX.ToString() + "x" + this.SizeY.ToString() + "\n" +
                     "channels: " + Nchannels.ToString() + "\n" +
+                    "Depth: " + Depth.ToString() + "\n" +
                     "Zoom 1:" + CurrentDownsampleFactor.ToString();
                 string mins = "Min. values: ";
                 string maxs = "Max. values: ";
@@ -160,9 +174,9 @@ namespace CamImageProcessing.NET
                 isAllowableZoom = false;
             }
 
-            if (zoom == CurrentDownsampleFactor || !isAllowableZoom)
+            if (!isAllowableZoom)
             {
-                Console.WriteLine("{0}: wrong zoom factor or the image already zoomed to this factor ", zoom);
+                Console.WriteLine("{0}: wrong zoom factor ", zoom);
                 return;
             }
 
@@ -171,10 +185,18 @@ namespace CamImageProcessing.NET
             try
             {
                 Console.WriteLine("{0}: zoomed image sizes: {1}x{2} ", MethodBase.GetCurrentMethod().Name, ZoomedSizeX, ZoomedSizeY);
-                Mat DstMat = new Mat(ZoomedSizeY, ZoomedSizeX, DepthType.Cv16U, Nchannels);
+                Mat DstMat;
                 Size DstSize = new Size(ZoomedSizeX, ZoomedSizeY);
-                //CvInvoke.PyrDown(SrcMat, DstMat);
-                CvInvoke.Resize(SrcMat, DstMat, DstSize, 0, 0);
+                if (shouldUse8bit)
+                {
+                    DstMat = new Mat(ZoomedSizeY, ZoomedSizeX, SrcMat8bit.Depth, Nchannels);
+                    CvInvoke.Resize(SrcMat8bit, DstMat, DstSize, 0, 0);
+                }
+                else
+                {
+                    DstMat = new Mat(ZoomedSizeY, ZoomedSizeX, SrcMat.Depth, Nchannels);
+                    CvInvoke.Resize(SrcMat, DstMat, DstSize, 0, 0);
+                }
                 // Destroy previous zoom
                 ShowImageName = ImageNameBase + ", scale 1:" + CurrentDownsampleFactor.ToString();
                 CvInvoke.DestroyWindow(ShowImageName);
@@ -183,6 +205,8 @@ namespace CamImageProcessing.NET
                 CvInvoke.NamedWindow(ShowImageName);             //Create the window using the specific name
                 CvInvoke.Imshow(ShowImageName, DstMat);          //Show the image
                 CurrentDownsampleFactor = zoom;
+                // Check the Depth
+                Depth = SrcMat.Depth;
             }
             catch (Exception ex)
             {
@@ -200,12 +224,58 @@ namespace CamImageProcessing.NET
         // Methods for processing (changing) images
         // ****************************************
 
-        // This method modifies the source Mat!
+        // Creates a 8-bit copy of the SrcMat
+        // SrcMat is not changed
+        public void ConvertTo8bit()
+        {
+            try
+            {
+                SrcMat8bit = SrcMat8bit.Clone();
+                SrcMat.ConvertTo(SrcMat8bit, DepthType.Cv8U, 0.00390625);   // scale = 1/256
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("{0}: error: could make convert SrcMat to 8-bit. " + ex.Message, MethodBase.GetCurrentMethod().Name);
+            }
+
+        }
+        // CvInvoke.ApplyColorMap() expects 8-bit image, otherwise returns original one.
+        // Method returns reference to a 8-bit scaled copy of SrcMat to show up.
         public void ApplyColorMap(ColorMapType ColorMap)
         {
             Mat tmpMat = SrcMat.Clone();
-            SrcMat.ConvertTo(tmpMat, DepthType.Cv8U, 0.00390625);
-            CvInvoke.ApplyColorMap(tmpMat, SrcMat, ColorMap);
+            SrcMat8bit = SrcMat.Clone();
+            // Convert to 8-bit unsigned
+            SrcMat.ConvertTo(tmpMat, DepthType.Cv8U, 0.00390625);   // scale = 1/256
+            CvInvoke.ApplyColorMap(tmpMat, SrcMat8bit, ColorMap);
+
+            tmpMat.Dispose();
+        }
+        // Linear transform NewMat = (OldMat - Offset)*Scale
+        // Converts Mat to Cv32F type
+        public void OffsetAndScale(UInt16 offset)
+        {
+            try
+            {
+                Scale = System.Math.Abs(65535 / (maxList.ElementAt(0) - Offset));
+                Mat tmpMat = SrcMat.Clone();
+                Mat tmpMat2 = SrcMat.Clone();
+                SrcMat.ConvertTo(tmpMat2, DepthType.Cv32F, 0, (double)offset);
+                SrcMat.ConvertTo(tmpMat, DepthType.Cv32F);
+                CvInvoke.AbsDiff(tmpMat, tmpMat2, tmpMat);
+                CvInvoke.AddWeighted(tmpMat, Scale, tmpMat, 0, 0, tmpMat2, DepthType.Cv32F);
+                Console.WriteLine("{0}: Mat from scalar {1}: min = {2}, max = {3}. ", MethodBase.GetCurrentMethod().Name, offset, tmpMat2.GetValueRange().Min, tmpMat2.GetValueRange().Max );
+                Console.WriteLine("{0}: tmpMat Depth: {1}, channels: {2} ", MethodBase.GetCurrentMethod().Name, tmpMat.Depth, tmpMat.NumberOfChannels );
+                tmpMat2.ConvertTo(SrcMat, DepthType.Cv16U);
+
+                tmpMat.Dispose();
+                tmpMat2.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("{0}: error: could make offset subtraction and scaling. " + ex.Message, MethodBase.GetCurrentMethod().Name);
+            }
+            
         }
     }
 }

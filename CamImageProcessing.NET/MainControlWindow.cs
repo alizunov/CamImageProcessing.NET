@@ -26,6 +26,9 @@ namespace CamImageProcessing.NET
         CameraImageHeader HeaderOrigImage;
         CameraImageHeader HeaderVoid;
 
+        const string OrigImageName = "Original Image";
+        const string ProcessedImageName = "Processed Image";
+
         // Original image, see CameraImage class desc.
         CameraImage OrigImage;
         // Processed image
@@ -39,7 +42,7 @@ namespace CamImageProcessing.NET
             // Open image button
             this.button3.Enabled = false;
             // Zoom factor for displaying original image combobox
-            comboBox1.Name = "Zoom image";
+            comboBox1.Name = "Zoom orig. image";
             comboBox1.TabIndex = 4;
             comboBox1.Items.AddRange(new object[] {"Zoom 1:1",
                         "Zoom 1:2",
@@ -61,7 +64,16 @@ namespace CamImageProcessing.NET
                         ColorMapType.Spring,
                         ColorMapType.Summer,
                         ColorMapType.Winter} );
-        }
+            // Zoom processed image combobox
+            ZoomProcessedImagecomboBox.Name = "Zoom proc. image";
+            ZoomProcessedImagecomboBox.Items.AddRange(new object[] {"Zoom 1:1",
+                        "Zoom 1:2",
+                        "Zoom 1:4",
+                        "Zoom 1:8"});
+            // Use 8-bit image checkbox
+            Use8bit_checkBox.Checked = false;
+        }   // MainControlWindow
+        
 
          // Open header file
        private void button1_Click(object sender, EventArgs e)
@@ -190,7 +202,7 @@ namespace CamImageProcessing.NET
                             // Read OK, so we can create EmguCV Mat structure
                             try
                             {
-                                OrigImage = new CameraImage((Int32)HeaderOrigImage.SizeY, (Int32)HeaderOrigImage.SizeX, 1, ImageReadout, "Original Image");
+                                OrigImage = new CameraImage((Int32)HeaderOrigImage.SizeY, (Int32)HeaderOrigImage.SizeX, 1, ImageReadout, OrigImageName);
                                 if (OrigImage.SizeX == HeaderOrigImage.SizeX && OrigImage.SizeY == HeaderOrigImage.SizeY)
                                 {
                                     //MessageBox.Show("CameraImage OK; sizes: " + OrigImage.SizeX + ", " + OrigImage.SizeY, "", MessageBoxButtons.OK);
@@ -203,7 +215,7 @@ namespace CamImageProcessing.NET
                                     comboBox1.Enabled = false;
                                 }
                                 // Create image for processing
-                                ProcessedImage = OrigImage.Clone("Processed Image");
+                                ProcessedImage = OrigImage.Clone(ProcessedImageName);
                                 if (ProcessedImage.SizeX == OrigImage.SizeX && ProcessedImage.SizeY == OrigImage.SizeY)
                                 {
                                     //MessageBox.Show("CameraImage OK; sizes: " + OrigImage.SizeX + ", " + OrigImage.SizeY, "", MessageBoxButtons.OK);
@@ -260,8 +272,7 @@ namespace CamImageProcessing.NET
 
         private void ColorMapCombobox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ProcessedImage.ApplyColorMap(ColorMapType.Hot);
-            //ProcessedImage.ApplyColorMap((ColorMapType)ColorMapCombobox.SelectedItem);
+            ProcessedImage.ApplyColorMap((ColorMapType)ColorMapCombobox.SelectedItem);
 
         }
         // Group of controls for processing image
@@ -272,7 +283,43 @@ namespace CamImageProcessing.NET
 
         private void ApplyButton_Click(object sender, EventArgs e)
         {
-            ProcessedImage.ShowZoomed(2);
+            ProcessedImage.ShowZoomed(ProcessedImage.CurrentDownsampleFactor);
+        }
+        // Reset processed image to original
+        private void ResetButton_Click(object sender, EventArgs e)
+        {
+            ProcessedImage = OrigImage.Clone(ProcessedImageName);
+        }
+
+        private void ZoomProcessedImagecomboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string item = ZoomProcessedImagecomboBox.SelectedItem.ToString();
+            byte SelectedZoom = Convert.ToByte(item.Substring(item.Length-1, 1));
+            ProcessedImage.ShowZoomed(SelectedZoom);
+            label2.Text = ProcessedImage.GetProperties;
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Use8bit_checkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            ProcessedImage.shouldUse8bit = Use8bit_checkBox.Checked;
+            if (Use8bit_checkBox.Checked) ProcessedImage.ConvertTo8bit();
+        }
+
+        private void BackgroundOffset_textBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void OffsetTextDone_button_Click(object sender, EventArgs e)
+        {
+            ProcessedImage.OffsetAndScale(Convert.ToUInt16(BackgroundOffset_textBox.Text));
+            label2.Text = ProcessedImage.GetProperties;
+            //MessageBox.Show("Offset: " + Convert.ToUInt16(BackgroundOffset_textBox.Text).ToString(), "", MessageBoxButtons.OK);
         }
     }
 }

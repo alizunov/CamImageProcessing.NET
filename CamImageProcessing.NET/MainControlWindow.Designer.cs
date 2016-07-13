@@ -36,8 +36,14 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.ColorMapCombobox = new System.Windows.Forms.ComboBox();
             this.ApplyButton = new System.Windows.Forms.Button();
+            this.ColorMapCombobox = new System.Windows.Forms.ComboBox();
+            this.ResetButton = new System.Windows.Forms.Button();
+            this.ZoomProcessedImagecomboBox = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.Use8bit_checkBox = new System.Windows.Forms.CheckBox();
+            this.BackgroundOffset_textBox = new System.Windows.Forms.TextBox();
+            this.OffsetTextDone_button = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -82,7 +88,7 @@
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(114, 21);
             this.comboBox1.TabIndex = 3;
-            this.comboBox1.Text = "Zoom image";
+            this.comboBox1.Text = "Zoom Image";
             this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // progressBar1
@@ -105,6 +111,12 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.OffsetTextDone_button);
+            this.groupBox1.Controls.Add(this.BackgroundOffset_textBox);
+            this.groupBox1.Controls.Add(this.Use8bit_checkBox);
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.ZoomProcessedImagecomboBox);
+            this.groupBox1.Controls.Add(this.ResetButton);
             this.groupBox1.Controls.Add(this.ApplyButton);
             this.groupBox1.Controls.Add(this.ColorMapCombobox);
             this.groupBox1.Location = new System.Drawing.Point(238, 12);
@@ -114,6 +126,17 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Process Image";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
+            // 
+            // ApplyButton
+            // 
+            this.ApplyButton.ForeColor = System.Drawing.SystemColors.Highlight;
+            this.ApplyButton.Location = new System.Drawing.Point(6, 427);
+            this.ApplyButton.Name = "ApplyButton";
+            this.ApplyButton.Size = new System.Drawing.Size(100, 23);
+            this.ApplyButton.TabIndex = 1;
+            this.ApplyButton.Text = "Update";
+            this.ApplyButton.UseVisualStyleBackColor = true;
+            this.ApplyButton.Click += new System.EventHandler(this.ApplyButton_Click);
             // 
             // ColorMapCombobox
             // 
@@ -125,15 +148,65 @@
             this.ColorMapCombobox.Text = "Color Map";
             this.ColorMapCombobox.SelectedIndexChanged += new System.EventHandler(this.ColorMapCombobox_SelectedIndexChanged);
             // 
-            // ApplyButton
+            // ResetButton
             // 
-            this.ApplyButton.Location = new System.Drawing.Point(181, 427);
-            this.ApplyButton.Name = "ApplyButton";
-            this.ApplyButton.Size = new System.Drawing.Size(100, 23);
-            this.ApplyButton.TabIndex = 1;
-            this.ApplyButton.Text = "Apply and view";
-            this.ApplyButton.UseVisualStyleBackColor = true;
-            this.ApplyButton.Click += new System.EventHandler(this.ApplyButton_Click);
+            this.ResetButton.ForeColor = System.Drawing.Color.Red;
+            this.ResetButton.Location = new System.Drawing.Point(423, 427);
+            this.ResetButton.Name = "ResetButton";
+            this.ResetButton.Size = new System.Drawing.Size(75, 23);
+            this.ResetButton.TabIndex = 2;
+            this.ResetButton.Text = "Reset";
+            this.ResetButton.UseVisualStyleBackColor = true;
+            this.ResetButton.Click += new System.EventHandler(this.ResetButton_Click);
+            // 
+            // ZoomProcessedImagecomboBox
+            // 
+            this.ZoomProcessedImagecomboBox.FormattingEnabled = true;
+            this.ZoomProcessedImagecomboBox.Location = new System.Drawing.Point(133, 19);
+            this.ZoomProcessedImagecomboBox.Name = "ZoomProcessedImagecomboBox";
+            this.ZoomProcessedImagecomboBox.Size = new System.Drawing.Size(121, 21);
+            this.ZoomProcessedImagecomboBox.TabIndex = 3;
+            this.ZoomProcessedImagecomboBox.Text = "Zoom Image";
+            this.ZoomProcessedImagecomboBox.SelectedIndexChanged += new System.EventHandler(this.ZoomProcessedImagecomboBox_SelectedIndexChanged);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(261, 19);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(112, 13);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "Proc. image properties";
+            this.label2.Click += new System.EventHandler(this.label2_Click);
+            // 
+            // Use8bit_checkBox
+            // 
+            this.Use8bit_checkBox.AutoSize = true;
+            this.Use8bit_checkBox.Location = new System.Drawing.Point(7, 47);
+            this.Use8bit_checkBox.Name = "Use8bit_checkBox";
+            this.Use8bit_checkBox.Size = new System.Drawing.Size(99, 17);
+            this.Use8bit_checkBox.TabIndex = 5;
+            this.Use8bit_checkBox.Text = "Use 8-bit image";
+            this.Use8bit_checkBox.UseVisualStyleBackColor = true;
+            this.Use8bit_checkBox.CheckedChanged += new System.EventHandler(this.Use8bit_checkBox_CheckedChanged);
+            // 
+            // BackgroundOffset_textBox
+            // 
+            this.BackgroundOffset_textBox.Location = new System.Drawing.Point(6, 94);
+            this.BackgroundOffset_textBox.Name = "BackgroundOffset_textBox";
+            this.BackgroundOffset_textBox.Size = new System.Drawing.Size(100, 20);
+            this.BackgroundOffset_textBox.TabIndex = 6;
+            this.BackgroundOffset_textBox.TextChanged += new System.EventHandler(this.BackgroundOffset_textBox_TextChanged);
+            // 
+            // OffsetTextDone_button
+            // 
+            this.OffsetTextDone_button.Location = new System.Drawing.Point(113, 92);
+            this.OffsetTextDone_button.Name = "OffsetTextDone_button";
+            this.OffsetTextDone_button.Size = new System.Drawing.Size(75, 23);
+            this.OffsetTextDone_button.TabIndex = 7;
+            this.OffsetTextDone_button.Text = "Done";
+            this.OffsetTextDone_button.UseVisualStyleBackColor = true;
+            this.OffsetTextDone_button.Click += new System.EventHandler(this.OffsetTextDone_button_Click);
             // 
             // MainControlWindow
             // 
@@ -150,6 +223,7 @@
             this.Name = "MainControlWindow";
             this.Text = "Form1";
             this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -167,6 +241,12 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.ComboBox ColorMapCombobox;
         private System.Windows.Forms.Button ApplyButton;
+        private System.Windows.Forms.Button ResetButton;
+        private System.Windows.Forms.ComboBox ZoomProcessedImagecomboBox;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.CheckBox Use8bit_checkBox;
+        private System.Windows.Forms.TextBox BackgroundOffset_textBox;
+        private System.Windows.Forms.Button OffsetTextDone_button;
     }
 }
 
