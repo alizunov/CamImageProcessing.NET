@@ -210,7 +210,7 @@ namespace CamImageProcessing.NET
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: Could not make zoomed image. Original error: " + ex.Message);
+                Console.WriteLine("{0}: Error: Could not make zoomed image. Original error: " + ex.Message, MethodBase.GetCurrentMethod().Name);
             }
 
         }
@@ -230,12 +230,12 @@ namespace CamImageProcessing.NET
         {
             try
             {
-                SrcMat8bit = SrcMat8bit.Clone();
+                SrcMat8bit = SrcMat.Clone();
                 SrcMat.ConvertTo(SrcMat8bit, DepthType.Cv8U, 0.00390625);   // scale = 1/256
             }
             catch (Exception ex)
             {
-                Console.WriteLine("{0}: error: could make convert SrcMat to 8-bit. " + ex.Message, MethodBase.GetCurrentMethod().Name);
+                Console.WriteLine("{0}: Error: could make convert SrcMat to 8-bit. " + ex.Message, MethodBase.GetCurrentMethod().Name);
             }
 
         }
@@ -252,7 +252,7 @@ namespace CamImageProcessing.NET
             tmpMat.Dispose();
         }
         // Linear transform NewMat = (OldMat - Offset)*Scale
-        // Converts Mat to Cv32F type
+        // Converts Mat to Cv32F type, otherwise AbsDiff() and AddWeighted() are not working
         public void OffsetAndScale(UInt16 offset)
         {
             try
@@ -260,6 +260,7 @@ namespace CamImageProcessing.NET
                 Scale = System.Math.Abs(65535 / (maxList.ElementAt(0) - Offset));
                 Mat tmpMat = SrcMat.Clone();
                 Mat tmpMat2 = SrcMat.Clone();
+                // Temp. Mat with all pixels set to Offset value
                 SrcMat.ConvertTo(tmpMat2, DepthType.Cv32F, 0, (double)offset);
                 SrcMat.ConvertTo(tmpMat, DepthType.Cv32F);
                 CvInvoke.AbsDiff(tmpMat, tmpMat2, tmpMat);
@@ -267,13 +268,15 @@ namespace CamImageProcessing.NET
                 Console.WriteLine("{0}: Mat from scalar {1}: min = {2}, max = {3}. ", MethodBase.GetCurrentMethod().Name, offset, tmpMat2.GetValueRange().Min, tmpMat2.GetValueRange().Max );
                 Console.WriteLine("{0}: tmpMat Depth: {1}, channels: {2} ", MethodBase.GetCurrentMethod().Name, tmpMat.Depth, tmpMat.NumberOfChannels );
                 tmpMat2.ConvertTo(SrcMat, DepthType.Cv16U);
+                // Call MinMax() to update min/max lists
+                MinMax();
 
                 tmpMat.Dispose();
                 tmpMat2.Dispose();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("{0}: error: could make offset subtraction and scaling. " + ex.Message, MethodBase.GetCurrentMethod().Name);
+                Console.WriteLine("{0}: Error: could make offset subtraction and scaling. " + ex.Message, MethodBase.GetCurrentMethod().Name);
             }
             
         }
