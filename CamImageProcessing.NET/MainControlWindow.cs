@@ -72,6 +72,16 @@ namespace CamImageProcessing.NET
                         "Zoom 1:8"});
             // Use 8-bit image checkbox
             Use8bit_checkBox.Checked = false;
+            // Setup UpDown inputs of X, Y coordinates for the ShowPixelValue() method
+            // X-input
+            numericUpDownX.Minimum = 0;
+            numericUpDownX.Maximum = 100;   // Will be updated when SrcMat is obtained
+            numericUpDownX.Increment = 1;
+            // Y-input
+            numericUpDownY.Minimum = 0;
+            numericUpDownY.Maximum = 100;   // Will be updated when SrcMat is obtained
+            numericUpDownY.Increment = 1;
+
         }   // MainControlWindow
         
 
@@ -220,6 +230,8 @@ namespace CamImageProcessing.NET
                                 {
                                     //MessageBox.Show("CameraImage OK; sizes: " + OrigImage.SizeX + ", " + OrigImage.SizeY, "", MessageBoxButtons.OK);
                                     groupBox1.Enabled = true;
+                                    numericUpDownX.Maximum = ProcessedImage.SizeX;
+                                    numericUpDownY.Maximum = ProcessedImage.SizeY;
                                     //label1.Text = OrigImage.GetProperties;
                                 }
                                 else
@@ -321,5 +333,23 @@ namespace CamImageProcessing.NET
             label2.Text = ProcessedImage.GetProperties;
             //MessageBox.Show("Offset: " + Convert.ToUInt16(BackgroundOffset_textBox.Text).ToString(), "", MessageBoxButtons.OK);
         }
+
+        private void numericUpDownX_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+        private void numericUpDownY_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ShowValueButton_Click(object sender, EventArgs e)
+        {
+            Int32 Xinput = (Int32)numericUpDownX.Value;
+            Int32 Yinput = (Int32)numericUpDownY.Value;
+            UInt16 PixelValue = ProcessedImage.GetPixelValue(Xinput, Yinput);
+            MessageBox.Show("Pixel(" + Xinput + ", " + Yinput + ") = " + PixelValue, "", MessageBoxButtons.OK);
+        }
+
     }
 }

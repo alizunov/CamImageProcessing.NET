@@ -220,6 +220,18 @@ namespace CamImageProcessing.NET
             CameraImage NewImage = new CameraImage(SrcMat, NewName);
             return NewImage;
         }
+        // Get pixel value by its coordinates
+        // WARNING: creates a new array of the full size!
+        public UInt16 GetPixelValue(Int32 X, Int32 Y)
+        {
+            Matrix<UInt16> MatArr;
+            MatArr = new Matrix<UInt16>(SrcMat.Size);
+            SrcMat.CopyTo(MatArr);
+            if (MatArr.Size != SrcMat.Size)
+                return 0;
+            else
+                return MatArr[Y, X];
+        }
         // ****************************************
         // Methods for processing (changing) images
         // ****************************************

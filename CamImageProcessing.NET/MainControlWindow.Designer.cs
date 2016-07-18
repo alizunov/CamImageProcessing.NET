@@ -36,15 +36,20 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.OffsetTextDone_button = new System.Windows.Forms.Button();
+            this.BackgroundOffset_textBox = new System.Windows.Forms.TextBox();
+            this.Use8bit_checkBox = new System.Windows.Forms.CheckBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.ZoomProcessedImagecomboBox = new System.Windows.Forms.ComboBox();
+            this.ResetButton = new System.Windows.Forms.Button();
             this.ApplyButton = new System.Windows.Forms.Button();
             this.ColorMapCombobox = new System.Windows.Forms.ComboBox();
-            this.ResetButton = new System.Windows.Forms.Button();
-            this.ZoomProcessedImagecomboBox = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.Use8bit_checkBox = new System.Windows.Forms.CheckBox();
-            this.BackgroundOffset_textBox = new System.Windows.Forms.TextBox();
-            this.OffsetTextDone_button = new System.Windows.Forms.Button();
+            this.numericUpDownX = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownY = new System.Windows.Forms.NumericUpDown();
+            this.ShowValueButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownY)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -111,6 +116,9 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.ShowValueButton);
+            this.groupBox1.Controls.Add(this.numericUpDownY);
+            this.groupBox1.Controls.Add(this.numericUpDownX);
             this.groupBox1.Controls.Add(this.OffsetTextDone_button);
             this.groupBox1.Controls.Add(this.BackgroundOffset_textBox);
             this.groupBox1.Controls.Add(this.Use8bit_checkBox);
@@ -126,6 +134,66 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Process Image";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
+            // 
+            // OffsetTextDone_button
+            // 
+            this.OffsetTextDone_button.Location = new System.Drawing.Point(113, 92);
+            this.OffsetTextDone_button.Name = "OffsetTextDone_button";
+            this.OffsetTextDone_button.Size = new System.Drawing.Size(75, 23);
+            this.OffsetTextDone_button.TabIndex = 7;
+            this.OffsetTextDone_button.Text = "Done";
+            this.OffsetTextDone_button.UseVisualStyleBackColor = true;
+            this.OffsetTextDone_button.Click += new System.EventHandler(this.OffsetTextDone_button_Click);
+            // 
+            // BackgroundOffset_textBox
+            // 
+            this.BackgroundOffset_textBox.Location = new System.Drawing.Point(6, 94);
+            this.BackgroundOffset_textBox.Name = "BackgroundOffset_textBox";
+            this.BackgroundOffset_textBox.Size = new System.Drawing.Size(100, 20);
+            this.BackgroundOffset_textBox.TabIndex = 6;
+            this.BackgroundOffset_textBox.TextChanged += new System.EventHandler(this.BackgroundOffset_textBox_TextChanged);
+            // 
+            // Use8bit_checkBox
+            // 
+            this.Use8bit_checkBox.AutoSize = true;
+            this.Use8bit_checkBox.Location = new System.Drawing.Point(7, 47);
+            this.Use8bit_checkBox.Name = "Use8bit_checkBox";
+            this.Use8bit_checkBox.Size = new System.Drawing.Size(99, 17);
+            this.Use8bit_checkBox.TabIndex = 5;
+            this.Use8bit_checkBox.Text = "Use 8-bit image";
+            this.Use8bit_checkBox.UseVisualStyleBackColor = true;
+            this.Use8bit_checkBox.CheckedChanged += new System.EventHandler(this.Use8bit_checkBox_CheckedChanged);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(261, 19);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(112, 13);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "Proc. image properties";
+            this.label2.Click += new System.EventHandler(this.label2_Click);
+            // 
+            // ZoomProcessedImagecomboBox
+            // 
+            this.ZoomProcessedImagecomboBox.FormattingEnabled = true;
+            this.ZoomProcessedImagecomboBox.Location = new System.Drawing.Point(133, 19);
+            this.ZoomProcessedImagecomboBox.Name = "ZoomProcessedImagecomboBox";
+            this.ZoomProcessedImagecomboBox.Size = new System.Drawing.Size(121, 21);
+            this.ZoomProcessedImagecomboBox.TabIndex = 3;
+            this.ZoomProcessedImagecomboBox.Text = "Zoom Image";
+            this.ZoomProcessedImagecomboBox.SelectedIndexChanged += new System.EventHandler(this.ZoomProcessedImagecomboBox_SelectedIndexChanged);
+            // 
+            // ResetButton
+            // 
+            this.ResetButton.ForeColor = System.Drawing.Color.Red;
+            this.ResetButton.Location = new System.Drawing.Point(423, 427);
+            this.ResetButton.Name = "ResetButton";
+            this.ResetButton.Size = new System.Drawing.Size(75, 23);
+            this.ResetButton.TabIndex = 2;
+            this.ResetButton.Text = "Reset";
+            this.ResetButton.UseVisualStyleBackColor = true;
+            this.ResetButton.Click += new System.EventHandler(this.ResetButton_Click);
             // 
             // ApplyButton
             // 
@@ -148,65 +216,31 @@
             this.ColorMapCombobox.Text = "Color Map";
             this.ColorMapCombobox.SelectedIndexChanged += new System.EventHandler(this.ColorMapCombobox_SelectedIndexChanged);
             // 
-            // ResetButton
+            // numericUpDownX
             // 
-            this.ResetButton.ForeColor = System.Drawing.Color.Red;
-            this.ResetButton.Location = new System.Drawing.Point(423, 427);
-            this.ResetButton.Name = "ResetButton";
-            this.ResetButton.Size = new System.Drawing.Size(75, 23);
-            this.ResetButton.TabIndex = 2;
-            this.ResetButton.Text = "Reset";
-            this.ResetButton.UseVisualStyleBackColor = true;
-            this.ResetButton.Click += new System.EventHandler(this.ResetButton_Click);
+            this.numericUpDownX.Location = new System.Drawing.Point(7, 120);
+            this.numericUpDownX.Name = "numericUpDownX";
+            this.numericUpDownX.Size = new System.Drawing.Size(60, 20);
+            this.numericUpDownX.TabIndex = 8;
+            this.numericUpDownX.ValueChanged += new System.EventHandler(this.numericUpDownX_ValueChanged);
             // 
-            // ZoomProcessedImagecomboBox
+            // numericUpDownY
             // 
-            this.ZoomProcessedImagecomboBox.FormattingEnabled = true;
-            this.ZoomProcessedImagecomboBox.Location = new System.Drawing.Point(133, 19);
-            this.ZoomProcessedImagecomboBox.Name = "ZoomProcessedImagecomboBox";
-            this.ZoomProcessedImagecomboBox.Size = new System.Drawing.Size(121, 21);
-            this.ZoomProcessedImagecomboBox.TabIndex = 3;
-            this.ZoomProcessedImagecomboBox.Text = "Zoom Image";
-            this.ZoomProcessedImagecomboBox.SelectedIndexChanged += new System.EventHandler(this.ZoomProcessedImagecomboBox_SelectedIndexChanged);
+            this.numericUpDownY.Location = new System.Drawing.Point(73, 121);
+            this.numericUpDownY.Name = "numericUpDownY";
+            this.numericUpDownY.Size = new System.Drawing.Size(60, 20);
+            this.numericUpDownY.TabIndex = 9;
+            this.numericUpDownY.ValueChanged += new System.EventHandler(this.numericUpDownY_ValueChanged);
             // 
-            // label2
+            // ShowValueButton
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(261, 19);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(112, 13);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "Proc. image properties";
-            this.label2.Click += new System.EventHandler(this.label2_Click);
-            // 
-            // Use8bit_checkBox
-            // 
-            this.Use8bit_checkBox.AutoSize = true;
-            this.Use8bit_checkBox.Location = new System.Drawing.Point(7, 47);
-            this.Use8bit_checkBox.Name = "Use8bit_checkBox";
-            this.Use8bit_checkBox.Size = new System.Drawing.Size(99, 17);
-            this.Use8bit_checkBox.TabIndex = 5;
-            this.Use8bit_checkBox.Text = "Use 8-bit image";
-            this.Use8bit_checkBox.UseVisualStyleBackColor = true;
-            this.Use8bit_checkBox.CheckedChanged += new System.EventHandler(this.Use8bit_checkBox_CheckedChanged);
-            // 
-            // BackgroundOffset_textBox
-            // 
-            this.BackgroundOffset_textBox.Location = new System.Drawing.Point(6, 94);
-            this.BackgroundOffset_textBox.Name = "BackgroundOffset_textBox";
-            this.BackgroundOffset_textBox.Size = new System.Drawing.Size(100, 20);
-            this.BackgroundOffset_textBox.TabIndex = 6;
-            this.BackgroundOffset_textBox.TextChanged += new System.EventHandler(this.BackgroundOffset_textBox_TextChanged);
-            // 
-            // OffsetTextDone_button
-            // 
-            this.OffsetTextDone_button.Location = new System.Drawing.Point(113, 92);
-            this.OffsetTextDone_button.Name = "OffsetTextDone_button";
-            this.OffsetTextDone_button.Size = new System.Drawing.Size(75, 23);
-            this.OffsetTextDone_button.TabIndex = 7;
-            this.OffsetTextDone_button.Text = "Done";
-            this.OffsetTextDone_button.UseVisualStyleBackColor = true;
-            this.OffsetTextDone_button.Click += new System.EventHandler(this.OffsetTextDone_button_Click);
+            this.ShowValueButton.Location = new System.Drawing.Point(139, 117);
+            this.ShowValueButton.Name = "ShowValueButton";
+            this.ShowValueButton.Size = new System.Drawing.Size(49, 23);
+            this.ShowValueButton.TabIndex = 10;
+            this.ShowValueButton.Text = "Get";
+            this.ShowValueButton.UseVisualStyleBackColor = true;
+            this.ShowValueButton.Click += new System.EventHandler(this.ShowValueButton_Click);
             // 
             // MainControlWindow
             // 
@@ -224,6 +258,8 @@
             this.Text = "Form1";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownY)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -247,6 +283,9 @@
         private System.Windows.Forms.CheckBox Use8bit_checkBox;
         private System.Windows.Forms.TextBox BackgroundOffset_textBox;
         private System.Windows.Forms.Button OffsetTextDone_button;
+        private System.Windows.Forms.NumericUpDown numericUpDownX;
+        private System.Windows.Forms.Button ShowValueButton;
+        private System.Windows.Forms.NumericUpDown numericUpDownY;
     }
 }
 
