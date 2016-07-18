@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using System.Drawing;
 
 /// <summary>
 /// EmguCV namespaces
@@ -345,10 +346,9 @@ namespace CamImageProcessing.NET
 
         private void ShowValueButton_Click(object sender, EventArgs e)
         {
-            Int32 Xinput = (Int32)numericUpDownX.Value;
-            Int32 Yinput = (Int32)numericUpDownY.Value;
-            UInt16 PixelValue = ProcessedImage.GetPixelValue(Xinput, Yinput);
-            MessageBox.Show("Pixel(" + Xinput + ", " + Yinput + ") = " + PixelValue, "", MessageBoxButtons.OK);
+            Point pixel = new Point((Int32)numericUpDownX.Value, (Int32)numericUpDownY.Value);
+            UInt16 PixelValue = ProcessedImage.GetPixelValue(pixel);
+            MessageBox.Show("Pixel(" + pixel.X + ", " + pixel.Y + ") = " + PixelValue, "", MessageBoxButtons.OK);
         }
 
     }

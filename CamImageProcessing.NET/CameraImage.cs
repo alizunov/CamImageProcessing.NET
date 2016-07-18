@@ -19,7 +19,10 @@ namespace CamImageProcessing.NET
     class CameraImage
     {
         // Main source Mat
-        private Mat SrcMat;
+        public Mat SrcMat
+        {
+            get;
+        }
         // 8-bit scaled copy to use with methods expecting 8-bit images
         private Mat SrcMat8bit;
 
@@ -222,15 +225,23 @@ namespace CamImageProcessing.NET
         }
         // Get pixel value by its coordinates
         // WARNING: creates a new array of the full size!
-        public UInt16 GetPixelValue(Int32 X, Int32 Y)
+        public UInt16 GetPixelValue(Point pixel)
         {
             Matrix<UInt16> MatArr;
             MatArr = new Matrix<UInt16>(SrcMat.Size);
             SrcMat.CopyTo(MatArr);
+            UInt16 pv = 0;
+            // Check ranges and align if necessary 
+            pixel.X = Math.Abs(pixel.X);
+            pixel.Y = Math.Abs(pixel.Y);
+            pixel.X = (pixel.X >= SrcMat.Cols) ? SrcMat.Cols - 1 : pixel.X;
+            pixel.Y = (pixel.Y >= SrcMat.Rows) ? SrcMat.Rows - 1 : pixel.Y;
             if (MatArr.Size != SrcMat.Size)
-                return 0;
+                pv = 0;
             else
-                return MatArr[Y, X];
+                pv = MatArr[pixel.Y, pixel.X];
+            MatArr.Dispose();
+            return pv;
         }
         // ****************************************
         // Methods for processing (changing) images
