@@ -287,9 +287,11 @@ namespace CamImageProcessing.NET
                 SrcMat.ConvertTo(tmpMat2, DepthType.Cv32F, 0, (double)offset);
                 SrcMat.ConvertTo(tmpMat, DepthType.Cv32F);
                 CvInvoke.AbsDiff(tmpMat, tmpMat2, tmpMat);
+                //CvInvoke.AddWeighted(tmpMat, 1, tmpMat, 0, 0, tmpMat2, DepthType.Cv32F);
                 CvInvoke.AddWeighted(tmpMat, Scale, tmpMat, 0, 0, tmpMat2, DepthType.Cv32F);
-                Console.WriteLine("{0}: Mat from scalar {1}: min = {2}, max = {3}. ", MethodBase.GetCurrentMethod().Name, offset, tmpMat2.GetValueRange().Min, tmpMat2.GetValueRange().Max );
-                Console.WriteLine("{0}: tmpMat Depth: {1}, channels: {2} ", MethodBase.GetCurrentMethod().Name, tmpMat.Depth, tmpMat.NumberOfChannels );
+                //Console.WriteLine("{0}: Mat from scalar {1}: min = {2}, max = {3}. ", MethodBase.GetCurrentMethod().Name, offset, tmpMat2.GetValueRange().Min, tmpMat2.GetValueRange().Max );
+                //Console.WriteLine("{0}: tmpMat Depth: {1}, channels: {2} ", MethodBase.GetCurrentMethod().Name, tmpMat.Depth, tmpMat.NumberOfChannels );
+                Console.WriteLine("{0}: offset: {1}, scale factor: {2} ", MethodBase.GetCurrentMethod().Name, offset, Scale);
                 tmpMat2.ConvertTo(SrcMat, DepthType.Cv16U);
                 // Call MinMax() to update min/max lists
                 MinMax();
