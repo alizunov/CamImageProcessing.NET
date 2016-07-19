@@ -316,7 +316,6 @@
   <ItemGroup>
     <Compile Include="CameraImage.cs" />
     <Compile Include="CameraImageHeader.cs" />
-    <Compile Include="CameraImageSlice.cs" />
     <Compile Include="MainControlWindow.cs">
       <SubType>Form</SubType>
     </Compile>
