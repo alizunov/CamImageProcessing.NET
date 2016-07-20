@@ -36,7 +36,7 @@ namespace CamImageProcessing.NET
         CameraImage ProcessedImage;
 
         // Slice
-        CameraImageSlice Slice1;
+        //CameraImageSlice Slice1;
 
         public MainControlWindow()
         {
@@ -433,7 +433,7 @@ namespace CamImageProcessing.NET
                 int h = ProcessedImage.SizeY - 1;
                 Color col = (Color)SliceColor_comboBox.SelectedItem;
                 Rectangle sliceROI = new Rectangle(x, 0, w, h);
-                Slice1 = new CameraImageSlice(ProcessedImage, sliceROI, "Vertical slice", col);
+                ProcessedImage.CreateSlice(sliceROI, "Slice-1", col);
             }
         }
 

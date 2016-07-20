@@ -38,6 +38,9 @@ namespace CamImageProcessing.NET
         public Image<Bgr, byte> SrcImage8bit
         { get; set; }
 
+        // Slice for profiling
+        public CameraImageSlice Slice
+        { get; set; }
         public byte CurrentDownsampleFactor
         { get; set; }
         
@@ -250,6 +253,9 @@ namespace CamImageProcessing.NET
                     // Create new zoom
                     DisplayWindowName = ImageNameBase + ", " + CurrentDepth + ", scale 1:" + zoom.ToString();
                     CvInvoke.NamedWindow(DisplayWindowName);             //Create the window using the specific name
+                    // Draw slice (ROI) rectangle
+                    if (Slice != null)
+                        Slice.DrawROIrectangle(true);
                     CvInvoke.Imshow(DisplayWindowName, tmpImage);          //Show the image
                 }
                 else
@@ -262,6 +268,8 @@ namespace CamImageProcessing.NET
                     // Create new zoom
                     DisplayWindowName = ImageNameBase + ", " + CurrentDepth + ", scale 1:" + zoom.ToString();
                     CvInvoke.NamedWindow(DisplayWindowName);             //Create the window using the specific name
+                    if (Slice != null)
+                        Slice.DrawROIrectangle(false);
                     CvInvoke.Imshow(DisplayWindowName, tmpImage);          //Show the image
                 }
                 CurrentDownsampleFactor = zoom;
@@ -355,6 +363,12 @@ namespace CamImageProcessing.NET
                 Console.WriteLine("{0}: Error: could make offset subtraction and scaling. " + ex.Message, MethodBase.GetCurrentMethod().Name);
             }
             
+        }
+
+        // ### Slice methods ###
+        public void CreateSlice(Rectangle ROI, string SliceName, Color SliceColor)
+        {
+            Slice = new CameraImageSlice(SrcMat, SrcImage, SrcImage8bit, ROI, SliceName, SliceColor);
         }
     }
 }
