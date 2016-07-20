@@ -330,6 +330,7 @@ namespace CamImageProcessing.NET
         // Reset processed image to original
         private void ResetButton_Click(object sender, EventArgs e)
         {
+            ProcessedImage.CloseAllWindows();
             ProcessedImage = OrigImage.Clone(ProcessedImageName);
         }
 
@@ -392,12 +393,14 @@ namespace CamImageProcessing.NET
                 SliceMargin1_label.Text = "Left";
                 SliceMargin2_label.Text = "Right";
                 SliceMargin1_numericUpDown.Maximum = ProcessedImage.SizeX - 1;
+                SliceMargin2_numericUpDown.Maximum = ProcessedImage.SizeX - 1;
             }
             else if (ProcessedImage != null) // Horizontal
             {
                 SliceMargin1_label.Text = "Top";
                 SliceMargin2_label.Text = "Bottom";
                 SliceMargin1_numericUpDown.Maximum = ProcessedImage.SizeY - 1;
+                SliceMargin2_numericUpDown.Maximum = ProcessedImage.SizeY - 1;
             }
         }
 

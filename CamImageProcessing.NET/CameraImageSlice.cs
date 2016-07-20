@@ -69,6 +69,10 @@ namespace CamImageProcessing.NET
             {
                 BaseCameraImage.SrcImage8bit.Draw(ScaledROI, BGRcolor, linethickness, linetype);
             }
+            else
+            {
+                BaseCameraImage.SrcImage.Draw(ScaledROI, BGRcolor, linethickness, linetype);
+            }
         }
     // class
     }

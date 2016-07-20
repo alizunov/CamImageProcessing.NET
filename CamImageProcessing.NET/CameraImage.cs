@@ -38,10 +38,6 @@ namespace CamImageProcessing.NET
         public Image<Bgr, byte> SrcImage8bit
         { get; set; }
 
-        // Requires for methods updating window (drawing of rectangles, etc.)
-        public string DisplayWindowName
-        { get; set; }
-
         public byte CurrentDownsampleFactor
         { get; set; }
         
@@ -82,12 +78,12 @@ namespace CamImageProcessing.NET
             Depth = SrcMat.Depth;
             // Fill lists of min / max and location values per channel
             MinMax();
-
             ImageNameBase = ImageName;
             // 0 - to activate zoom 1:1
             CurrentDownsampleFactor = 1;
             // Create the Image
             SrcImage = SrcMat.ToImage<Bgr, UInt16>();
+            //SrcImage8bit = SrcImage.Convert<Bgr, byte>();
         }
         // ctor which clones Mat
         public CameraImage(Mat RefMat, string ImageName)
@@ -105,8 +101,9 @@ namespace CamImageProcessing.NET
             ImageNameBase = ImageName;
             // 0 - to activate zoom 1:1
             CurrentDownsampleFactor = 1;
-            // Create the Image
+            // Create the Images
             SrcImage = SrcMat.ToImage<Bgr, UInt16>();
+            SrcImage8bit = SrcImage.Convert<Bgr, byte>();
         }
         
         // Other methods
@@ -186,11 +183,17 @@ namespace CamImageProcessing.NET
                 return gen + "\n" + mins + "\n" + maxs + "\n" + minLocs + "\n" + maxLocs;
             }
         }
+        // Closes all named windows
+        public void CloseAllWindows()
+        {
+            CvInvoke.DestroyAllWindows();
+        }
         // Shows zoomed (downsampled) image with one of preset factors from the AllowedDownsampleFactor enum.
         // Displayed (optonally scaled) picture is of EMGU Image class to allow drawing of geometric elements like a ROI rectangle.
         public void ShowZoomed(byte zoom)
         {
             bool isAllowableZoom = false;
+            string DisplayWindowName;
             string CurrentDepth;
             // zoom = 0 : only show 16-bit or 8-bit image, no scaling, no destroying previous window.
             // This is used, for instance, after creating of lines/rectangles/etc. in Slice methods.
@@ -200,15 +203,16 @@ namespace CamImageProcessing.NET
                 try
                 {
                     if (shouldUse8bit)
-                        CvInvoke.Imshow(DisplayWindowName, SrcImage8bit);          //Show the image 8-bit
+                        CvInvoke.Imshow(ImageNameBase + ", " + "byte" + ", scale 1:" + CurrentDownsampleFactor.ToString(), SrcImage8bit);          //Show the image 8-bit
                     else
-                        CvInvoke.Imshow(DisplayWindowName, SrcImage);          //Show the image
+                        CvInvoke.Imshow(ImageNameBase + ", " + "UInt16" + ", scale 1:" + CurrentDownsampleFactor.ToString(), SrcImage);          //Show the image
 
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("{0}: Error: Could not update existing window. Original error: " + ex.Message, MethodBase.GetCurrentMethod().Name);
                 }
+                return;
 
             }
             foreach (byte iF in AllowedDownsampleFactor)
@@ -217,7 +221,7 @@ namespace CamImageProcessing.NET
                 if (isAllowableZoom) break;
             }
             // Check if image sizes are devisible by the zoom.
-            if (SrcImage.Cols % zoom != 0 || SrcImage.Rows % zoom != 0)
+            if (SrcMat.Cols % zoom != 0 || SrcMat.Rows % zoom != 0)
             {
                 Console.WriteLine("{0}: wrong zoom factor {1}: {2} and/or {3} are not multiple", MethodBase.GetCurrentMethod().Name, zoom, SrcMat.Cols, SrcMat.Rows);
                 isAllowableZoom = false;
@@ -229,8 +233,8 @@ namespace CamImageProcessing.NET
                 return;
             }
 
-            Int32 ZoomedSizeX = (Int32)SrcImage.Cols / zoom;
-            Int32 ZoomedSizeY = (Int32)SrcImage.Rows / zoom;
+            Int32 ZoomedSizeX = (Int32)SrcMat.Cols / zoom;
+            Int32 ZoomedSizeY = (Int32)SrcMat.Rows / zoom;
             try
             {
                 Console.WriteLine("{0}: zoomed image sizes: {1}x{2} ", MethodBase.GetCurrentMethod().Name, ZoomedSizeX, ZoomedSizeY);
@@ -238,30 +242,29 @@ namespace CamImageProcessing.NET
                 // Zoom = (1) clone Mat to Image; (2) resize Image; (3) Display Image
                 if (shouldUse8bit)
                 {
-                    SrcImage = SrcMat.ToImage<Bgr, UInt16>();
-                    SrcImage8bit = SrcImage.Convert<Bgr, byte>();
-                    CvInvoke.Resize(SrcImage8bit, SrcImage8bit, DstSize, 0, 0);
+                    Image<Bgr, byte> tmpImage = SrcImage8bit;
+                    CvInvoke.Resize(tmpImage, tmpImage, DstSize, 0, 0);
                     CurrentDepth = "byte";
+                    // Destroy previous zoom if the window name is not empty
+                    CvInvoke.DestroyWindow(ImageNameBase + ", " + CurrentDepth + ", scale 1:" + CurrentDownsampleFactor.ToString());
+                    // Create new zoom
+                    DisplayWindowName = ImageNameBase + ", " + CurrentDepth + ", scale 1:" + zoom.ToString();
+                    CvInvoke.NamedWindow(DisplayWindowName);             //Create the window using the specific name
+                    CvInvoke.Imshow(DisplayWindowName, tmpImage);          //Show the image
                 }
                 else
                 {
-                    SrcImage = SrcMat.ToImage<Bgr, UInt16>();
-                    CvInvoke.Resize(SrcImage, SrcImage, DstSize, 0, 0);
+                    Image<Bgr, UInt16> tmpImage = SrcImage;
+                    CvInvoke.Resize(tmpImage, tmpImage, DstSize, 0, 0);
                     CurrentDepth = "UInt16";
+                    // Destroy previous zoom if the window name is not empty
+                    CvInvoke.DestroyWindow(ImageNameBase + ", " + CurrentDepth + ", scale 1:" + CurrentDownsampleFactor.ToString());
+                    // Create new zoom
+                    DisplayWindowName = ImageNameBase + ", " + CurrentDepth + ", scale 1:" + zoom.ToString();
+                    CvInvoke.NamedWindow(DisplayWindowName);             //Create the window using the specific name
+                    CvInvoke.Imshow(DisplayWindowName, tmpImage);          //Show the image
                 }
-                // Destroy previous zoom
-                CvInvoke.DestroyWindow(ImageNameBase + ", " + CurrentDepth+ ", scale 1:" + CurrentDownsampleFactor.ToString());
-                // Create new zoom
-                DisplayWindowName = ImageNameBase + ", " + CurrentDepth + ", scale 1:" + zoom.ToString();
-                CvInvoke.NamedWindow(DisplayWindowName);             //Create the window using the specific name
-                //CvInvoke.Imshow(ShowImageName, img16);          //Show the image
                 CurrentDownsampleFactor = zoom;
-                // Check the Depth
-                Depth = SrcMat.Depth;
-                if (shouldUse8bit)
-                    CvInvoke.Imshow(DisplayWindowName, SrcImage8bit);          //Show the image 8-bit
-                else
-                    CvInvoke.Imshow(DisplayWindowName, SrcImage);          //Show the image
             }
             catch (Exception ex)
             {
@@ -327,6 +330,7 @@ namespace CamImageProcessing.NET
         {
             try
             {
+                Offset = offset;
                 Scale = System.Math.Abs(65535 / (maxList.ElementAt(0) - Offset));
                 Mat tmpMat = SrcMat.Clone();
                 Mat tmpMat2 = SrcMat.Clone();
