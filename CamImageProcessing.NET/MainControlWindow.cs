@@ -35,6 +35,9 @@ namespace CamImageProcessing.NET
         // Processed image
         CameraImage ProcessedImage;
 
+        // Slice
+        CameraImageSlice Slice1;
+
         public MainControlWindow()
         {
             InitializeComponent();
@@ -82,6 +85,32 @@ namespace CamImageProcessing.NET
             numericUpDownY.Minimum = 0;
             numericUpDownY.Maximum = 100;   // Will be updated when SrcMat is obtained
             numericUpDownY.Increment = 1;
+            
+            // Slice controls:
+            // Horizontal or vertical combobox setup
+            HorV_slice_comboBox.Name = "Slice direction";
+            HorV_slice_comboBox.Items.AddRange(new object[] { "Vertical", "Horizontal" });
+            HorV_slice_comboBox.SelectedIndex = 0;
+            // Labels of numUpDown controls of slice margins
+            SliceMargin1_label.Text = "Margin-1";
+            SliceMargin2_label.Text = "Margin-2";
+            // numUpDown controls of slice margins
+            SliceMargin1_numericUpDown.Minimum = 0;
+            SliceMargin2_numericUpDown.Minimum = 0;
+            // Slice color combobox
+            SliceColor_comboBox.Items.AddRange(new object[] { Color.AliceBlue,
+                Color.AntiqueWhite,
+                Color.Coral,
+                Color.Cyan,
+                Color.DarkBlue,
+                Color.DarkGreen,
+                Color.DarkMagenta,
+                Color.DarkRed,
+                Color.Blue,
+                Color.Green,
+                Color.Magenta,
+                Color.Red});
+            SliceColor_comboBox.SelectedIndex = 0;
 
         }   // MainControlWindow
         
@@ -351,5 +380,63 @@ namespace CamImageProcessing.NET
             MessageBox.Show("Pixel(" + pixel.X + ", " + pixel.Y + ") = " + PixelValue, "", MessageBoxButtons.OK);
         }
 
+        private void Slice_groupBox_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void HorV_slice_comboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (HorV_slice_comboBox.SelectedIndex == 0 && ProcessedImage != null) // Vertical
+            {
+                SliceMargin1_label.Text = "Left";
+                SliceMargin2_label.Text = "Right";
+                SliceMargin1_numericUpDown.Maximum = ProcessedImage.SizeX - 1;
+            }
+            else if (ProcessedImage != null) // Horizontal
+            {
+                SliceMargin1_label.Text = "Top";
+                SliceMargin2_label.Text = "Bottom";
+                SliceMargin1_numericUpDown.Maximum = ProcessedImage.SizeY - 1;
+            }
+        }
+
+        private void SliceMargin1_numericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void SliceMargin1_label_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void SliceMargin2_numericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void SliceMargin2_label_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void CreateSlice_button_Click(object sender, EventArgs e)
+        {
+            if (HorV_slice_comboBox.SelectedIndex == 0) // Vertical
+            {
+                int x = (int)SliceMargin1_numericUpDown.Value;
+                int w = (int)(SliceMargin2_numericUpDown.Value - SliceMargin1_numericUpDown.Value);
+                int h = ProcessedImage.SizeY - 1;
+                Color col = (Color)SliceColor_comboBox.SelectedItem;
+                Rectangle sliceROI = new Rectangle(x, 0, w, h);
+                Slice1 = new CameraImageSlice(ProcessedImage, sliceROI, "Vertical slice", col);
+            }
+        }
+
+        private void SliceColor_comboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
