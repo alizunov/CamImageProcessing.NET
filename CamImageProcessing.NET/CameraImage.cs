@@ -189,16 +189,20 @@ namespace CamImageProcessing.NET
             {
                 Console.WriteLine("{0}: zoomed image sizes: {1}x{2} ", MethodBase.GetCurrentMethod().Name, ZoomedSizeX, ZoomedSizeY);
                 Mat DstMat;
+                Image<Bgr, byte> img8;
+                Image<Bgr, UInt16> img16 = null;
                 Size DstSize = new Size(ZoomedSizeX, ZoomedSizeY);
                 if (shouldUse8bit)
                 {
                     DstMat = new Mat(ZoomedSizeY, ZoomedSizeX, SrcMat8bit.Depth, Nchannels);
                     CvInvoke.Resize(SrcMat8bit, DstMat, DstSize, 0, 0);
+                    img8 = DstMat.ToImage<Bgr, byte>();
                 }
                 else
                 {
                     DstMat = new Mat(ZoomedSizeY, ZoomedSizeX, SrcMat.Depth, Nchannels);
                     CvInvoke.Resize(SrcMat, DstMat, DstSize, 0, 0);
+                    img16 = DstMat.ToImage<Bgr, UInt16>();
                 }
                 // Destroy previous zoom
                 ShowImageName = ImageNameBase + ", scale 1:" + CurrentDownsampleFactor.ToString();
@@ -206,10 +210,15 @@ namespace CamImageProcessing.NET
                 // Create new zoom
                 ShowImageName = ImageNameBase + ", scale 1:" + zoom.ToString();
                 CvInvoke.NamedWindow(ShowImageName);             //Create the window using the specific name
-                CvInvoke.Imshow(ShowImageName, DstMat);          //Show the image
+                //CvInvoke.Imshow(ShowImageName, img16);          //Show the image
                 CurrentDownsampleFactor = zoom;
                 // Check the Depth
                 Depth = SrcMat.Depth;
+                Point p1 = new Point(100, 200);
+                Point p2 = new Point(1000, 200);
+                MCvScalar color = new MCvScalar(255, 255, 255);
+                CvInvoke.Line(img16, p1, p2, color);
+                CvInvoke.Imshow(ShowImageName, img16);          //Show the image
             }
             catch (Exception ex)
             {
