@@ -430,7 +430,7 @@ namespace CamImageProcessing.NET
             {
                 int x = (int)SliceMargin1_numericUpDown.Value;
                 int w = (int)(SliceMargin2_numericUpDown.Value - SliceMargin1_numericUpDown.Value);
-                int h = ProcessedImage.SizeY - 1;
+                int h = ProcessedImage.SizeY - 2;
                 Color col = (Color)SliceColor_comboBox.SelectedItem;
                 Rectangle sliceROI = new Rectangle(x, 0, w, h);
                 ProcessedImage.CreateSlice(sliceROI, "Slice-1", col);

@@ -14,6 +14,10 @@ using Emgu.CV.Structure;
 using Emgu.CV.CvEnum;
 using Emgu.Util;
 
+// ROOT.NET
+using ROOT;
+using ROOTNET;
+
 namespace CamImageProcessing.NET
 {
     class CameraImage
@@ -255,7 +259,10 @@ namespace CamImageProcessing.NET
                     CvInvoke.NamedWindow(DisplayWindowName);             //Create the window using the specific name
                     // Draw slice (ROI) rectangle
                     if (Slice != null)
-                        Slice.DrawROIrectangle(true);
+                    {
+                        //Console.WriteLine("{0}: drawing geometry in image {1}:{2} ", MethodBase.GetCurrentMethod().Name, tmpImage.ToString(), tmpImage.GetType());
+                        Slice.DrawROIrectangle(true, null, tmpImage, zoom);
+                    }
                     CvInvoke.Imshow(DisplayWindowName, tmpImage);          //Show the image
                 }
                 else
@@ -269,7 +276,16 @@ namespace CamImageProcessing.NET
                     DisplayWindowName = ImageNameBase + ", " + CurrentDepth + ", scale 1:" + zoom.ToString();
                     CvInvoke.NamedWindow(DisplayWindowName);             //Create the window using the specific name
                     if (Slice != null)
-                        Slice.DrawROIrectangle(false);
+                    {
+                        //Console.WriteLine("{0}: drawing geometry in image {1}:{2} ", MethodBase.GetCurrentMethod().Name, tmpImage.ToString(), tmpImage.GetType());
+                        Slice.DrawROIrectangle(false, tmpImage, null, zoom);
+                        // ROOT.NET section
+                        Slice.SliceHisto.Fill(11);
+                        Slice.SliceHisto.SetBinContent(5, 22);
+                        Slice.SliceHisto.Draw();
+                        Console.WriteLine("{0}: NTH1F test: bin({1}) contains {2}, mean = {3}.", MethodBase.GetCurrentMethod().Name, 5, Slice.SliceHisto.GetBinContent(5), Slice.SliceHisto.GetMean());
+                        
+                    }
                     CvInvoke.Imshow(DisplayWindowName, tmpImage);          //Show the image
                 }
                 CurrentDownsampleFactor = zoom;

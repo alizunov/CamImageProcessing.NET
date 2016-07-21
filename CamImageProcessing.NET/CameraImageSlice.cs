@@ -40,6 +40,13 @@ namespace CamImageProcessing.NET
 
         public Image<Bgr,byte> BaseImage8
         { get; set; }
+
+        // *** Properties ROOT.NET ***
+        public ROOTNET.NTCanvas SliceCanvas
+        { get; set; }
+        public ROOTNET.NTH1F SliceHisto
+        { get; set; }
+
         // ctor
         public CameraImageSlice(Mat mat, Image<Bgr, UInt16> img16, Image<Bgr, byte> img8, Rectangle rect, string name, Color color)
         {
@@ -60,18 +67,30 @@ namespace CamImageProcessing.NET
             {
                 Console.WriteLine("{0}: Error: could not create the slice Mat. " + ex.Message, MethodBase.GetCurrentMethod().Name);
             }
+            // ROOT.NET section - create canvas and histo
+            try
+            {
+                SliceCanvas = new NTCanvas("Slice canvas", "Slice canvas", 500, 200, 500, 500);
+                SliceHisto = new NTH1F("Slice histo", "Slice histo", 100, 0, 100);
+                Console.WriteLine("{0}: creating ROOT.NET canvas: {1} and histo: {2}. ", MethodBase.GetCurrentMethod().Name, SliceCanvas.ToString(), SliceHisto.ToString());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("{0}: Error: could not create the slice canvas. " + ex.Message, MethodBase.GetCurrentMethod().Name);
+            }
+
         }
 
         // Draws rectangle defined by ROI in the base image (16-bit or 8-bit depending on the usage flag). The rectangle is scaled according to the current zoom factor set on the base image.
-        public void DrawROIrectangle(bool is8bit, Image<Bgr, UInt16> img16, Image<Bgr, byte> img8)
+        public void DrawROIrectangle(bool is8bit, Image<Bgr, UInt16> img16, Image<Bgr, byte> img8, int scale)
         {
-            int scale = (is8bit) ? (int)BaseMat.Cols / BaseImage8.Cols : (int)BaseMat.Cols / BaseImage16.Cols;
             try
             {
                 int NewX = (int)ROI.X / scale;
                 int NewY = (int)ROI.Y / scale;
                 int NewWidth = (int)ROI.Width / scale;
                 int NewHeight = (int)ROI.Height / scale;
+                Console.WriteLine("{0}: ROI-X = {1}, ROI-Y = {2}, ROI-W = {3}, ROI-H = {4}, scale = {5}. ", MethodBase.GetCurrentMethod().Name, NewX, NewY, NewWidth, NewHeight, scale);
                 Bgr BGRcolor = new Bgr(ROIcontourColor);
                 Rectangle ScaledROI = new Rectangle(NewX, NewY, NewWidth, NewHeight);
                 if (is8bit)
