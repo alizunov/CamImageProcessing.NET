@@ -41,6 +41,8 @@ namespace CamImageProcessing.NET
         public MainControlWindow()
         {
             InitializeComponent();
+
+
             // Show header button
             this.button2.Enabled = false;
             // Open image button
@@ -111,6 +113,10 @@ namespace CamImageProcessing.NET
                 Color.Magenta,
                 Color.Red});
             SliceColor_comboBox.SelectedIndex = 0;
+
+            // Create a form for graphics
+            Graphics1 GraphForm1 = new Graphics1();
+            GraphForm1.Show();
 
         }   // MainControlWindow
         

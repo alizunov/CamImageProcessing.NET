@@ -11,15 +11,16 @@ using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 
-// ROOT.NET
-using ROOT;
-using ROOTNET;
+// Graphics
+using OxyPlot;
+using OxyPlot.Series;
 
 namespace CamImageProcessing.NET
 {
     // Subsection of the image Mat. Primary designation: vertical thin slice to measure the intensity profile.
-    // Uses ROOT 1-d histo for handling of profiles.
     // SliceMat shares data with the large source (full-frame) Mat.
+    // Calls for ROI drawings must be done from the CameraImage method displaying the image window (ShowZoomed())
+    // Uses OxyPlot for graphics (NuGet packages inside this project).
     class CameraImageSlice
     {
         // *** Private members ***
@@ -41,10 +42,8 @@ namespace CamImageProcessing.NET
         public Image<Bgr,byte> BaseImage8
         { get; set; }
 
-        // *** Properties ROOT.NET ***
-        public ROOTNET.NTCanvas SliceCanvas
-        { get; set; }
-        public ROOTNET.NTH1F SliceHisto
+        // *** OxyPlot properties ***
+        public PlotModel SliceCanvas
         { get; set; }
 
         // ctor
@@ -67,17 +66,7 @@ namespace CamImageProcessing.NET
             {
                 Console.WriteLine("{0}: Error: could not create the slice Mat. " + ex.Message, MethodBase.GetCurrentMethod().Name);
             }
-            // ROOT.NET section - create canvas and histo
-            try
-            {
-                SliceCanvas = new NTCanvas("Slice canvas", "Slice canvas", 500, 200, 500, 500);
-                SliceHisto = new NTH1F("Slice histo", "Slice histo", 100, 0, 100);
-                Console.WriteLine("{0}: creating ROOT.NET canvas: {1} and histo: {2}. ", MethodBase.GetCurrentMethod().Name, SliceCanvas.ToString(), SliceHisto.ToString());
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("{0}: Error: could not create the slice canvas. " + ex.Message, MethodBase.GetCurrentMethod().Name);
-            }
+            //SliceCanvas = new PlotModel { Title = "Slice canvas" };
 
         }
 

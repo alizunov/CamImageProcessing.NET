@@ -36,6 +36,14 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.Slice_groupBox = new System.Windows.Forms.GroupBox();
+            this.SliceColor_comboBox = new System.Windows.Forms.ComboBox();
+            this.CreateSlice_button = new System.Windows.Forms.Button();
+            this.SliceMargin2_label = new System.Windows.Forms.Label();
+            this.SliceMargin2_numericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.SliceMargin1_label = new System.Windows.Forms.Label();
+            this.SliceMargin1_numericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.HorV_slice_comboBox = new System.Windows.Forms.ComboBox();
             this.ShowValueButton = new System.Windows.Forms.Button();
             this.numericUpDownY = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownX = new System.Windows.Forms.NumericUpDown();
@@ -47,20 +55,12 @@
             this.ResetButton = new System.Windows.Forms.Button();
             this.ApplyButton = new System.Windows.Forms.Button();
             this.ColorMapCombobox = new System.Windows.Forms.ComboBox();
-            this.Slice_groupBox = new System.Windows.Forms.GroupBox();
-            this.HorV_slice_comboBox = new System.Windows.Forms.ComboBox();
-            this.SliceMargin1_numericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.SliceMargin1_label = new System.Windows.Forms.Label();
-            this.SliceMargin2_numericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.SliceMargin2_label = new System.Windows.Forms.Label();
-            this.CreateSlice_button = new System.Windows.Forms.Button();
-            this.SliceColor_comboBox = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
+            this.Slice_groupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.SliceMargin2_numericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.SliceMargin1_numericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownX)).BeginInit();
-            this.Slice_groupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.SliceMargin1_numericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.SliceMargin2_numericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -146,6 +146,89 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Process Image";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
+            // 
+            // Slice_groupBox
+            // 
+            this.Slice_groupBox.Controls.Add(this.SliceColor_comboBox);
+            this.Slice_groupBox.Controls.Add(this.CreateSlice_button);
+            this.Slice_groupBox.Controls.Add(this.SliceMargin2_label);
+            this.Slice_groupBox.Controls.Add(this.SliceMargin2_numericUpDown);
+            this.Slice_groupBox.Controls.Add(this.SliceMargin1_label);
+            this.Slice_groupBox.Controls.Add(this.SliceMargin1_numericUpDown);
+            this.Slice_groupBox.Controls.Add(this.HorV_slice_comboBox);
+            this.Slice_groupBox.Location = new System.Drawing.Point(6, 147);
+            this.Slice_groupBox.Name = "Slice_groupBox";
+            this.Slice_groupBox.Size = new System.Drawing.Size(248, 151);
+            this.Slice_groupBox.TabIndex = 11;
+            this.Slice_groupBox.TabStop = false;
+            this.Slice_groupBox.Text = "Image slice";
+            this.Slice_groupBox.Enter += new System.EventHandler(this.Slice_groupBox_Enter);
+            // 
+            // SliceColor_comboBox
+            // 
+            this.SliceColor_comboBox.FormattingEnabled = true;
+            this.SliceColor_comboBox.Location = new System.Drawing.Point(7, 102);
+            this.SliceColor_comboBox.Name = "SliceColor_comboBox";
+            this.SliceColor_comboBox.Size = new System.Drawing.Size(121, 21);
+            this.SliceColor_comboBox.TabIndex = 6;
+            this.SliceColor_comboBox.Text = "Slice color";
+            this.SliceColor_comboBox.SelectedIndexChanged += new System.EventHandler(this.SliceColor_comboBox_SelectedIndexChanged);
+            // 
+            // CreateSlice_button
+            // 
+            this.CreateSlice_button.Location = new System.Drawing.Point(133, 19);
+            this.CreateSlice_button.Name = "CreateSlice_button";
+            this.CreateSlice_button.Size = new System.Drawing.Size(75, 23);
+            this.CreateSlice_button.TabIndex = 5;
+            this.CreateSlice_button.Text = "Create Slice";
+            this.CreateSlice_button.UseVisualStyleBackColor = true;
+            this.CreateSlice_button.Click += new System.EventHandler(this.CreateSlice_button_Click);
+            // 
+            // SliceMargin2_label
+            // 
+            this.SliceMargin2_label.AutoSize = true;
+            this.SliceMargin2_label.Location = new System.Drawing.Point(80, 82);
+            this.SliceMargin2_label.Name = "SliceMargin2_label";
+            this.SliceMargin2_label.Size = new System.Drawing.Size(48, 13);
+            this.SliceMargin2_label.TabIndex = 4;
+            this.SliceMargin2_label.Text = "Margin-2";
+            this.SliceMargin2_label.Click += new System.EventHandler(this.SliceMargin2_label_Click);
+            // 
+            // SliceMargin2_numericUpDown
+            // 
+            this.SliceMargin2_numericUpDown.Location = new System.Drawing.Point(7, 75);
+            this.SliceMargin2_numericUpDown.Name = "SliceMargin2_numericUpDown";
+            this.SliceMargin2_numericUpDown.Size = new System.Drawing.Size(66, 20);
+            this.SliceMargin2_numericUpDown.TabIndex = 3;
+            this.SliceMargin2_numericUpDown.ValueChanged += new System.EventHandler(this.SliceMargin2_numericUpDown_ValueChanged);
+            // 
+            // SliceMargin1_label
+            // 
+            this.SliceMargin1_label.AutoSize = true;
+            this.SliceMargin1_label.Location = new System.Drawing.Point(80, 55);
+            this.SliceMargin1_label.Name = "SliceMargin1_label";
+            this.SliceMargin1_label.Size = new System.Drawing.Size(48, 13);
+            this.SliceMargin1_label.TabIndex = 2;
+            this.SliceMargin1_label.Text = "Margin-1";
+            this.SliceMargin1_label.Click += new System.EventHandler(this.SliceMargin1_label_Click);
+            // 
+            // SliceMargin1_numericUpDown
+            // 
+            this.SliceMargin1_numericUpDown.Location = new System.Drawing.Point(7, 48);
+            this.SliceMargin1_numericUpDown.Name = "SliceMargin1_numericUpDown";
+            this.SliceMargin1_numericUpDown.Size = new System.Drawing.Size(66, 20);
+            this.SliceMargin1_numericUpDown.TabIndex = 1;
+            this.SliceMargin1_numericUpDown.Tag = "Margin-1";
+            this.SliceMargin1_numericUpDown.ValueChanged += new System.EventHandler(this.SliceMargin1_numericUpDown_ValueChanged);
+            // 
+            // HorV_slice_comboBox
+            // 
+            this.HorV_slice_comboBox.FormattingEnabled = true;
+            this.HorV_slice_comboBox.Location = new System.Drawing.Point(7, 20);
+            this.HorV_slice_comboBox.Name = "HorV_slice_comboBox";
+            this.HorV_slice_comboBox.Size = new System.Drawing.Size(121, 21);
+            this.HorV_slice_comboBox.TabIndex = 0;
+            this.HorV_slice_comboBox.SelectedIndexChanged += new System.EventHandler(this.HorV_slice_comboBox_SelectedIndexChanged);
             // 
             // ShowValueButton
             // 
@@ -254,89 +337,6 @@
             this.ColorMapCombobox.Text = "Color Map";
             this.ColorMapCombobox.SelectedIndexChanged += new System.EventHandler(this.ColorMapCombobox_SelectedIndexChanged);
             // 
-            // Slice_groupBox
-            // 
-            this.Slice_groupBox.Controls.Add(this.SliceColor_comboBox);
-            this.Slice_groupBox.Controls.Add(this.CreateSlice_button);
-            this.Slice_groupBox.Controls.Add(this.SliceMargin2_label);
-            this.Slice_groupBox.Controls.Add(this.SliceMargin2_numericUpDown);
-            this.Slice_groupBox.Controls.Add(this.SliceMargin1_label);
-            this.Slice_groupBox.Controls.Add(this.SliceMargin1_numericUpDown);
-            this.Slice_groupBox.Controls.Add(this.HorV_slice_comboBox);
-            this.Slice_groupBox.Location = new System.Drawing.Point(6, 147);
-            this.Slice_groupBox.Name = "Slice_groupBox";
-            this.Slice_groupBox.Size = new System.Drawing.Size(248, 151);
-            this.Slice_groupBox.TabIndex = 11;
-            this.Slice_groupBox.TabStop = false;
-            this.Slice_groupBox.Text = "Image slice";
-            this.Slice_groupBox.Enter += new System.EventHandler(this.Slice_groupBox_Enter);
-            // 
-            // HorV_slice_comboBox
-            // 
-            this.HorV_slice_comboBox.FormattingEnabled = true;
-            this.HorV_slice_comboBox.Location = new System.Drawing.Point(7, 20);
-            this.HorV_slice_comboBox.Name = "HorV_slice_comboBox";
-            this.HorV_slice_comboBox.Size = new System.Drawing.Size(121, 21);
-            this.HorV_slice_comboBox.TabIndex = 0;
-            this.HorV_slice_comboBox.SelectedIndexChanged += new System.EventHandler(this.HorV_slice_comboBox_SelectedIndexChanged);
-            // 
-            // SliceMargin1_numericUpDown
-            // 
-            this.SliceMargin1_numericUpDown.Location = new System.Drawing.Point(7, 48);
-            this.SliceMargin1_numericUpDown.Name = "SliceMargin1_numericUpDown";
-            this.SliceMargin1_numericUpDown.Size = new System.Drawing.Size(66, 20);
-            this.SliceMargin1_numericUpDown.TabIndex = 1;
-            this.SliceMargin1_numericUpDown.Tag = "Margin-1";
-            this.SliceMargin1_numericUpDown.ValueChanged += new System.EventHandler(this.SliceMargin1_numericUpDown_ValueChanged);
-            // 
-            // SliceMargin1_label
-            // 
-            this.SliceMargin1_label.AutoSize = true;
-            this.SliceMargin1_label.Location = new System.Drawing.Point(80, 55);
-            this.SliceMargin1_label.Name = "SliceMargin1_label";
-            this.SliceMargin1_label.Size = new System.Drawing.Size(48, 13);
-            this.SliceMargin1_label.TabIndex = 2;
-            this.SliceMargin1_label.Text = "Margin-1";
-            this.SliceMargin1_label.Click += new System.EventHandler(this.SliceMargin1_label_Click);
-            // 
-            // SliceMargin2_numericUpDown
-            // 
-            this.SliceMargin2_numericUpDown.Location = new System.Drawing.Point(7, 75);
-            this.SliceMargin2_numericUpDown.Name = "SliceMargin2_numericUpDown";
-            this.SliceMargin2_numericUpDown.Size = new System.Drawing.Size(66, 20);
-            this.SliceMargin2_numericUpDown.TabIndex = 3;
-            this.SliceMargin2_numericUpDown.ValueChanged += new System.EventHandler(this.SliceMargin2_numericUpDown_ValueChanged);
-            // 
-            // SliceMargin2_label
-            // 
-            this.SliceMargin2_label.AutoSize = true;
-            this.SliceMargin2_label.Location = new System.Drawing.Point(80, 82);
-            this.SliceMargin2_label.Name = "SliceMargin2_label";
-            this.SliceMargin2_label.Size = new System.Drawing.Size(48, 13);
-            this.SliceMargin2_label.TabIndex = 4;
-            this.SliceMargin2_label.Text = "Margin-2";
-            this.SliceMargin2_label.Click += new System.EventHandler(this.SliceMargin2_label_Click);
-            // 
-            // CreateSlice_button
-            // 
-            this.CreateSlice_button.Location = new System.Drawing.Point(133, 19);
-            this.CreateSlice_button.Name = "CreateSlice_button";
-            this.CreateSlice_button.Size = new System.Drawing.Size(75, 23);
-            this.CreateSlice_button.TabIndex = 5;
-            this.CreateSlice_button.Text = "Create Slice";
-            this.CreateSlice_button.UseVisualStyleBackColor = true;
-            this.CreateSlice_button.Click += new System.EventHandler(this.CreateSlice_button_Click);
-            // 
-            // SliceColor_comboBox
-            // 
-            this.SliceColor_comboBox.FormattingEnabled = true;
-            this.SliceColor_comboBox.Location = new System.Drawing.Point(7, 102);
-            this.SliceColor_comboBox.Name = "SliceColor_comboBox";
-            this.SliceColor_comboBox.Size = new System.Drawing.Size(121, 21);
-            this.SliceColor_comboBox.TabIndex = 6;
-            this.SliceColor_comboBox.Text = "Slice color";
-            this.SliceColor_comboBox.SelectedIndexChanged += new System.EventHandler(this.SliceColor_comboBox_SelectedIndexChanged);
-            // 
             // MainControlWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -350,15 +350,15 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Name = "MainControlWindow";
-            this.Text = "Form1";
+            this.Text = "Control panel";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownY)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownX)).EndInit();
             this.Slice_groupBox.ResumeLayout(false);
             this.Slice_groupBox.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.SliceMargin1_numericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.SliceMargin2_numericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.SliceMargin1_numericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownX)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
