@@ -14,14 +14,16 @@ namespace CamImageProcessing.NET
 {
     public partial class Graphics1 : Form
     {
+        // ZedGraph items
+        public GraphPane pane
+        { get; set; }
+
         public Graphics1()
         {
             InitializeComponent();
             
-            GraphPane pane = new GraphPane();
-            ArrowObj arrow = new ArrowObj(10, 100, 200, 200);
-            pane.GraphObjList.Add(arrow);
-            zedGraphControl1.Invalidate();
+            pane = new GraphPane();
+            //zedGraphControl1.Invalidate();
             
         }
 
@@ -33,6 +35,12 @@ namespace CamImageProcessing.NET
         private void zedGraphControl1_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void GetSliceData_button_Click(object sender, EventArgs e)
+        {
+            List<double> SliceList = MainControlWindow
+            PointPairList plist = new PointPairList();
         }
     }
 }

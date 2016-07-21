@@ -35,13 +35,9 @@ namespace CamImageProcessing.NET
         // Processed image
         CameraImage ProcessedImage;
 
-        // Slice
-        //CameraImageSlice Slice1;
-
         public MainControlWindow()
         {
             InitializeComponent();
-
 
             // Show header button
             this.button2.Enabled = false;

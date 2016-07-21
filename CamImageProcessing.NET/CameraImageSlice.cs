@@ -12,28 +12,27 @@ using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 
 // Graphics
-using OxyPlot;
-using OxyPlot.Series;
+using ZedGraph;
 
 namespace CamImageProcessing.NET
 {
     // Subsection of the image Mat. Primary designation: vertical thin slice to measure the intensity profile.
-    // SliceMat shares data with the large source (full-frame) Mat.
+    // SliceMatrix shares data with the large source (full-frame) Mat.
     // Calls for ROI drawings must be done from the CameraImage method displaying the image window (ShowZoomed())
-    // Uses OxyPlot for graphics (NuGet packages inside this project).
+    // Uses ZedGraph for graphics (NuGet packages inside this project).
     class CameraImageSlice
     {
         // *** Private members ***
         private string SliceName;
         private Rectangle ROI;
         private Color ROIcontourColor;
-        private LineType linetype = LineType.EightConnected;
+        private Emgu.CV.CvEnum.LineType linetype = Emgu.CV.CvEnum.LineType.EightConnected;
         private int linethickness = 1;
 
         // *** Properties ***
         public Mat BaseMat
         { get; }
-        public Mat SliceMat
+        public Matrix<double> SliceMatrix
         { get; set; }
 
         public Image<Bgr, UInt16> BaseImage16
@@ -42,9 +41,13 @@ namespace CamImageProcessing.NET
         public Image<Bgr,byte> BaseImage8
         { get; set; }
 
-        // *** OxyPlot properties ***
-        public PlotModel SliceCanvas
+        public int Xsize
         { get; set; }
+
+        public int Ysize
+        { get; set; }
+
+        // *** ZedGraph properties ***
 
         // ctor
         public CameraImageSlice(Mat mat, Image<Bgr, UInt16> img16, Image<Bgr, byte> img8, Rectangle rect, string name, Color color)
@@ -60,7 +63,12 @@ namespace CamImageProcessing.NET
                 Console.WriteLine("{0}: warning: wrong ROI. Will try to create the slice Mat anyway. ", MethodBase.GetCurrentMethod().Name);
             try
             {
-                SliceMat = new Mat(BaseMat, ROI);
+                Mat SliceMat = new Mat(BaseMat, ROI);
+                SliceMat.ConvertTo(SliceMat, DepthType.Cv64F);
+                SliceMatrix = new Matrix<double>(SliceMat.Size);
+                SliceMat.CopyTo(SliceMatrix);
+                Xsize = SliceMatrix.Cols;
+                Ysize = SliceMatrix.Rows;
             }
             catch (Exception ex)
             {
@@ -92,6 +100,21 @@ namespace CamImageProcessing.NET
                 Console.WriteLine("{0}: Error: could not create ROI or draw rectangle: scale = {1}. " + ex.Message, MethodBase.GetCurrentMethod().Name, scale);
             }
 
+        }
+
+        // Averages columns like averaged_column = sum(columns)/Ncolumns, returns array.
+        public List<double> AverageCols()
+        {
+            List<double> averagedList = new List<double>();
+            double v = 0;
+            for (int irow=0; irow<Ysize; irow++)
+            {
+                v = 0;
+                for (int icol = 0; icol < Xsize; icol++)
+                    v += SliceMatrix[irow, icol];
+                averagedList.Add(v / Xsize);
+            }
+            return averagedList;
         }
     // class
     }
