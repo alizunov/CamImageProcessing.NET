@@ -35,6 +35,9 @@ namespace CamImageProcessing.NET
         // Processed image
         CameraImage ProcessedImage;
 
+        // Form for graphics
+        Graphics1 GraphForm1;
+
         public MainControlWindow()
         {
             InitializeComponent();
@@ -111,7 +114,7 @@ namespace CamImageProcessing.NET
             SliceColor_comboBox.SelectedIndex = 0;
 
             // Create a form for graphics
-            Graphics1 GraphForm1 = new Graphics1();
+            GraphForm1 = new Graphics1();
             GraphForm1.Show();
 
         }   // MainControlWindow
@@ -436,6 +439,11 @@ namespace CamImageProcessing.NET
                 Color col = (Color)SliceColor_comboBox.SelectedItem;
                 Rectangle sliceROI = new Rectangle(x, 0, w, h);
                 ProcessedImage.CreateSlice(sliceROI, "Slice-1", col);
+                GraphForm1.AddSliceProfile(ProcessedImage.Slice.AverageCols(), 0, 1);
+            }
+            else if (HorV_slice_comboBox.SelectedIndex == 1) // Horizontal
+            {
+                // Add code here
             }
         }
 
