@@ -21,9 +21,6 @@ namespace CamImageProcessing.NET
         // *** Private members ***
         private byte[] AllowedDownsampleFactor = { 1, 2, 4, 8 };
         private string ImageNameBase;
-        // Parameters of a linear transform NewMat = (OldMat - Offset)*Scale
-        private UInt16 Offset;
-        private double Scale;
 
         // *** Properties ***
         // Main source Mat
@@ -70,6 +67,9 @@ namespace CamImageProcessing.NET
         // ctor
         public CameraImage(Int32 SizeY, Int32 SizeX, Int32 Nch, List<UInt16> Data, string ImageName)
         {
+            // Dispose if exists
+            if (SrcMat != null)
+                SrcMat.Dispose();
             Nchannels = Nch;
             System.Runtime.InteropServices.GCHandle handle = System.Runtime.InteropServices.GCHandle.Alloc(Data.ToArray(), System.Runtime.InteropServices.GCHandleType.Pinned);
             SrcMat = new Mat(SizeY, SizeX, DepthType.Cv16U, Nchannels, handle.AddrOfPinnedObject(), SizeX * 2);
@@ -85,14 +85,19 @@ namespace CamImageProcessing.NET
             // 0 - to activate zoom 1:1
             CurrentDownsampleFactor = 1;
             // Create the Image
+            if (SrcImage != null)
+                SrcImage.Dispose();
             SrcImage = SrcMat.ToImage<Bgr, UInt16>();
             //SrcImage8bit = SrcImage.Convert<Bgr, byte>();
         }
         // ctor which clones Mat
         public CameraImage(Mat RefMat, string ImageName)
         {
-            SrcMat = RefMat.Clone();
-
+            // Dispose if exists
+            if (SrcMat != null)
+                SrcMat.Dispose();
+            SrcMat = RefMat;
+            //SrcMat = RefMat.Clone();
             Nchannels = RefMat.NumberOfChannels;
             minList = new List<double>(Nchannels);
             maxList = new List<double>(Nchannels);
@@ -105,8 +110,12 @@ namespace CamImageProcessing.NET
             // 0 - to activate zoom 1:1
             CurrentDownsampleFactor = 1;
             // Create the Images
+            if (SrcImage != null)
+                SrcImage.Dispose();
             SrcImage = SrcMat.ToImage<Bgr, UInt16>();
-            SrcImage8bit = SrcImage.Convert<Bgr, byte>();
+            if (SrcImage8bit != null)
+                SrcImage8bit.Dispose();
+            SrcImage8bit = SrcImage.ConvertScale<byte>(0.00390625, 0);  // scale = 1/256
         }
         
         // Other methods
@@ -322,6 +331,8 @@ namespace CamImageProcessing.NET
         {
             try
             {
+                if (SrcImage8bit != null)
+                    SrcImage8bit.Dispose();
                 SrcImage8bit = SrcImage.ConvertScale<byte>(0.00390625, 0);  // scale = 1/256
             }
             catch (Exception ex)
@@ -334,7 +345,7 @@ namespace CamImageProcessing.NET
         // First calls ConvertTo8bit(), then applies a new color map.
         public void ApplyColorMap(ColorMapType ColorMap)
         {
-            ConvertTo8bit();
+            //ConvertTo8bit();
             CvInvoke.ApplyColorMap(SrcImage8bit, SrcImage8bit, ColorMap);
         }
         // !!! OffsetAndScale() modifies the SrcMat itself !!!
@@ -344,8 +355,7 @@ namespace CamImageProcessing.NET
         {
             try
             {
-                Offset = offset;
-                Scale = System.Math.Abs(65535 / (maxList.ElementAt(0) - Offset));
+                double scale = System.Math.Abs(65535 / (maxList.ElementAt(0) - offset));
                 Mat tmpMat = SrcMat.Clone();
                 Mat tmpMat2 = SrcMat.Clone();
                 // Temp. Mat with all pixels set to Offset value
@@ -353,11 +363,14 @@ namespace CamImageProcessing.NET
                 SrcMat.ConvertTo(tmpMat, DepthType.Cv32F);
                 CvInvoke.AbsDiff(tmpMat, tmpMat2, tmpMat);
                 //CvInvoke.AddWeighted(tmpMat, 1, tmpMat, 0, 0, tmpMat2, DepthType.Cv32F);
-                CvInvoke.AddWeighted(tmpMat, Scale, tmpMat, 0, 0, tmpMat2, DepthType.Cv32F);
+                CvInvoke.AddWeighted(tmpMat, scale, tmpMat, 0, 0, tmpMat2, DepthType.Cv32F);
                 //Console.WriteLine("{0}: Mat from scalar {1}: min = {2}, max = {3}. ", MethodBase.GetCurrentMethod().Name, offset, tmpMat2.GetValueRange().Min, tmpMat2.GetValueRange().Max );
                 //Console.WriteLine("{0}: tmpMat Depth: {1}, channels: {2} ", MethodBase.GetCurrentMethod().Name, tmpMat.Depth, tmpMat.NumberOfChannels );
-                Console.WriteLine("{0}: offset: {1}, scale factor: {2} ", MethodBase.GetCurrentMethod().Name, offset, Scale);
+                Console.WriteLine("{0}: offset: {1}, scale factor: {2} ", MethodBase.GetCurrentMethod().Name, offset, scale);
                 tmpMat2.ConvertTo(SrcMat, DepthType.Cv16U);
+                // Update 16-bit and 8-bit images
+                SrcImage = SrcMat.ToImage<Bgr, UInt16>();
+                SrcImage8bit = SrcImage.ConvertScale<byte>(0.00390625, 0);  // scale = 1/256
                 // Call MinMax() to update min/max lists
                 MinMax();
 
@@ -369,6 +382,47 @@ namespace CamImageProcessing.NET
                 Console.WriteLine("{0}: Error: could make offset subtraction and scaling. " + ex.Message, MethodBase.GetCurrentMethod().Name);
             }
             
+        }
+
+        // Contrast Limited Adaptive Histogram Equalization (CLAHE)
+        public void CLAHE()
+        {
+            // See documentation, default = 40
+            double cliplimit = 40;
+            // See documentation, default = 8x8
+            Size tileGridSize = new Size(8, 8);
+            try
+            {
+                CvInvoke.CLAHE(SrcMat, cliplimit, tileGridSize, SrcMat);
+                // Update 16-bit and 8-bit images
+                SrcImage = SrcMat.ToImage<Bgr, UInt16>();
+                SrcImage8bit = SrcImage.ConvertScale<byte>(0.00390625, 0);  // scale = 1/256
+                MinMax();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("{0}: Error: could make CLAHE on SrcMat. " + ex.Message, MethodBase.GetCurrentMethod().Name);
+            }
+
+        }
+
+        // Enhancement of contrast and brightness by equalization of the 8-bit image histogram
+        public void EqualizeHisto()
+        {
+            try
+            {
+                Image<Gray, byte> tmpImage = SrcMat.ToImage<Gray, UInt16>().Convert<Gray, byte>();
+                CvInvoke.EqualizeHist(tmpImage, tmpImage);
+                CvInvoke.CvtColor(tmpImage, SrcImage8bit, ColorConversion.Gray2Bgr);
+                // Update the 16-bit image
+                //SrcImage = SrcImage8bit.ConvertScale<UInt16>(256, 0);
+                tmpImage.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("{0}: Error: could equalize the SrcMat histogram. " + ex.Message, MethodBase.GetCurrentMethod().Name);
+            }
+
         }
 
         // ### Slice methods ###

@@ -20,6 +20,9 @@ namespace CamImageProcessing.NET
         // It must be checked before initialize the header class instance.
         List<string> TextReadout = new List<string>();
 
+        // Image file name
+        string ImageFileName;
+
         // Uint16 List of image pixels read from the file.
         List<UInt16> ImageReadout = new List<UInt16>();
 
@@ -142,6 +145,7 @@ namespace CamImageProcessing.NET
                             using (System.IO.StreamReader srReader = new System.IO.StreamReader(myStream))
                             {
                                 // Insert code to read the stream here.
+                                ImageFileName = openFileDialog1.FileName;
                                 TextReadout.Clear();
                                 string str1 = "";
                                 while ((str1 = srReader.ReadLine()) != null)
@@ -450,6 +454,30 @@ namespace CamImageProcessing.NET
         private void SliceColor_comboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void ImageHisto_groupBox_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void CLAHE_button_Click(object sender, EventArgs e)
+        {
+            // Contrast Limited Adaptive Histogram Equalization (CLAHE)
+            ProcessedImage.CLAHE();
+            label2.Text = ProcessedImage.GetProperties;
+        }
+
+        private void EqualizeHist_button_Click(object sender, EventArgs e)
+        {
+            ProcessedImage.EqualizeHisto();
+            label2.Text = ProcessedImage.GetProperties;
+        }
+
+        private void SaveImages_button_Click(object sender, EventArgs e)
+        {
+            ProcessedImage.SrcImage.Save(ImageFileName + "-16bit.png");
+            ProcessedImage.SrcImage8bit.Save(ImageFileName + "-8bit.png");
         }
     }
 }
