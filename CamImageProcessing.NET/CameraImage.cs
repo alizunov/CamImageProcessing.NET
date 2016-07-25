@@ -35,8 +35,8 @@ namespace CamImageProcessing.NET
         public Image<Bgr, byte> SrcImage8bit
         { get; set; }
 
-        // Slice for profiling
-        public CameraImageSlice Slice
+        // Slices for profiling
+        public List<CameraImageSlice> SliceList
         { get; set; }
         public byte CurrentDownsampleFactor
         { get; set; }
@@ -67,9 +67,6 @@ namespace CamImageProcessing.NET
         // ctor
         public CameraImage(Int32 SizeY, Int32 SizeX, Int32 Nch, List<UInt16> Data, string ImageName)
         {
-            // Dispose if exists
-            if (SrcMat != null)
-                SrcMat.Dispose();
             Nchannels = Nch;
             System.Runtime.InteropServices.GCHandle handle = System.Runtime.InteropServices.GCHandle.Alloc(Data.ToArray(), System.Runtime.InteropServices.GCHandleType.Pinned);
             SrcMat = new Mat(SizeY, SizeX, DepthType.Cv16U, Nchannels, handle.AddrOfPinnedObject(), SizeX * 2);
@@ -84,18 +81,13 @@ namespace CamImageProcessing.NET
             ImageNameBase = ImageName;
             // 0 - to activate zoom 1:1
             CurrentDownsampleFactor = 1;
-            // Create the Image
-            if (SrcImage != null)
-                SrcImage.Dispose();
             SrcImage = SrcMat.ToImage<Bgr, UInt16>();
             //SrcImage8bit = SrcImage.Convert<Bgr, byte>();
+            SliceList = new List<CameraImageSlice>();
         }
         // ctor which clones Mat
         public CameraImage(Mat RefMat, string ImageName)
         {
-            // Dispose if exists
-            if (SrcMat != null)
-                SrcMat.Dispose();
             SrcMat = RefMat;
             //SrcMat = RefMat.Clone();
             Nchannels = RefMat.NumberOfChannels;
@@ -110,14 +102,12 @@ namespace CamImageProcessing.NET
             // 0 - to activate zoom 1:1
             CurrentDownsampleFactor = 1;
             // Create the Images
-            if (SrcImage != null)
-                SrcImage.Dispose();
             SrcImage = SrcMat.ToImage<Bgr, UInt16>();
-            if (SrcImage8bit != null)
-                SrcImage8bit.Dispose();
             SrcImage8bit = SrcImage.ConvertScale<byte>(0.00390625, 0);  // scale = 1/256
+            SliceList = new List<CameraImageSlice>();
+
         }
-        
+
         // Other methods
         // X-size of Mat
         public Int32 SizeX
@@ -262,11 +252,11 @@ namespace CamImageProcessing.NET
                     // Create new zoom
                     DisplayWindowName = ImageNameBase + ", " + CurrentDepth + ", scale 1:" + zoom.ToString();
                     CvInvoke.NamedWindow(DisplayWindowName);             //Create the window using the specific name
-                    // Draw slice (ROI) rectangle
-                    if (Slice != null)
+                    // Draw slice (ROI) rectangles for each from the list if it is not empty
+                    if (SliceList.Count > 0)
                     {
-                        //Console.WriteLine("{0}: drawing geometry in image {1}:{2} ", MethodBase.GetCurrentMethod().Name, tmpImage.ToString(), tmpImage.GetType());
-                        Slice.DrawROIrectangle(true, null, tmpImage, zoom);
+                        foreach (CameraImageSlice sl in SliceList)
+                            sl.DrawROIrectangle(true, null, tmpImage, zoom);
                     }
                     CvInvoke.Imshow(DisplayWindowName, tmpImage);          //Show the image
                 }
@@ -280,10 +270,10 @@ namespace CamImageProcessing.NET
                     // Create new zoom
                     DisplayWindowName = ImageNameBase + ", " + CurrentDepth + ", scale 1:" + zoom.ToString();
                     CvInvoke.NamedWindow(DisplayWindowName);             //Create the window using the specific name
-                    if (Slice != null)
+                    if (SliceList.Count > 0)
                     {
-                        //Console.WriteLine("{0}: drawing geometry in image {1}:{2} ", MethodBase.GetCurrentMethod().Name, tmpImage.ToString(), tmpImage.GetType());
-                        Slice.DrawROIrectangle(false, tmpImage, null, zoom);
+                        foreach (CameraImageSlice sl in SliceList)
+                            sl.DrawROIrectangle(false, tmpImage, null, zoom);
                     }
                     CvInvoke.Imshow(DisplayWindowName, tmpImage);          //Show the image
                 }
@@ -428,7 +418,12 @@ namespace CamImageProcessing.NET
         // ### Slice methods ###
         public void CreateSlice(Rectangle ROI, string SliceName, Color SliceColor)
         {
-            Slice = new CameraImageSlice(SrcMat, SrcImage, SrcImage8bit, ROI, SliceName, SliceColor);
+            SliceList.Add( new CameraImageSlice(SrcMat, ROI, SliceName, SliceColor) );
+        }
+
+        public void ClearSliceList()
+        {
+            SliceList.Clear();
         }
     }
 }

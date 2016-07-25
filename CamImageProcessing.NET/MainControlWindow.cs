@@ -443,7 +443,8 @@ namespace CamImageProcessing.NET
                 Color col = (Color)SliceColor_comboBox.SelectedItem;
                 Rectangle sliceROI = new Rectangle(x, 0, w, h);
                 ProcessedImage.CreateSlice(sliceROI, "Slice-1", col);
-                GraphForm1.AddSliceProfile(ProcessedImage.Slice.AverageCols(), 0, 1);
+                SliceCount_label.Text = "Slice count: " + ProcessedImage.SliceList.Count.ToString();
+                GraphForm1.AddSliceProfile(ProcessedImage.SliceList.Last().AverageCols(), 0, 1);
             }
             else if (HorV_slice_comboBox.SelectedIndex == 1) // Horizontal
             {
@@ -478,6 +479,17 @@ namespace CamImageProcessing.NET
         {
             ProcessedImage.SrcImage.Save(ImageFileName + "-16bit.png");
             ProcessedImage.SrcImage8bit.Save(ImageFileName + "-8bit.png");
+        }
+
+        private void SliceCount_label_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ClearSliceList_button_Click(object sender, EventArgs e)
+        {
+            ProcessedImage.ClearSliceList();
+            SliceCount_label.Text = "Slice count: " + ProcessedImage.SliceList.Count.ToString();
         }
     }
 }

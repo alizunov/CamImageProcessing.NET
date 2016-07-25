@@ -36,6 +36,11 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.SaveImages_button = new System.Windows.Forms.Button();
+            this.ImageHisto_groupBox = new System.Windows.Forms.GroupBox();
+            this.EqualizeHist_button = new System.Windows.Forms.Button();
+            this.CLAHE_button = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
             this.Slice_groupBox = new System.Windows.Forms.GroupBox();
             this.SliceColor_comboBox = new System.Windows.Forms.ComboBox();
             this.CreateSlice_button = new System.Windows.Forms.Button();
@@ -55,18 +60,15 @@
             this.ResetButton = new System.Windows.Forms.Button();
             this.ApplyButton = new System.Windows.Forms.Button();
             this.ColorMapCombobox = new System.Windows.Forms.ComboBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.ImageHisto_groupBox = new System.Windows.Forms.GroupBox();
-            this.CLAHE_button = new System.Windows.Forms.Button();
-            this.EqualizeHist_button = new System.Windows.Forms.Button();
-            this.SaveImages_button = new System.Windows.Forms.Button();
+            this.SliceCount_label = new System.Windows.Forms.Label();
+            this.ClearSliceList_button = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
+            this.ImageHisto_groupBox.SuspendLayout();
             this.Slice_groupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SliceMargin2_numericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.SliceMargin1_numericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownX)).BeginInit();
-            this.ImageHisto_groupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
@@ -156,8 +158,61 @@
             this.groupBox1.Text = "Process Image";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
             // 
+            // SaveImages_button
+            // 
+            this.SaveImages_button.Location = new System.Drawing.Point(112, 427);
+            this.SaveImages_button.Name = "SaveImages_button";
+            this.SaveImages_button.Size = new System.Drawing.Size(75, 23);
+            this.SaveImages_button.TabIndex = 14;
+            this.SaveImages_button.Text = "Save";
+            this.SaveImages_button.UseVisualStyleBackColor = true;
+            this.SaveImages_button.Click += new System.EventHandler(this.SaveImages_button_Click);
+            // 
+            // ImageHisto_groupBox
+            // 
+            this.ImageHisto_groupBox.Controls.Add(this.EqualizeHist_button);
+            this.ImageHisto_groupBox.Controls.Add(this.CLAHE_button);
+            this.ImageHisto_groupBox.Location = new System.Drawing.Point(264, 147);
+            this.ImageHisto_groupBox.Name = "ImageHisto_groupBox";
+            this.ImageHisto_groupBox.Size = new System.Drawing.Size(200, 151);
+            this.ImageHisto_groupBox.TabIndex = 13;
+            this.ImageHisto_groupBox.TabStop = false;
+            this.ImageHisto_groupBox.Text = "Histograms";
+            this.ImageHisto_groupBox.Enter += new System.EventHandler(this.ImageHisto_groupBox_Enter);
+            // 
+            // EqualizeHist_button
+            // 
+            this.EqualizeHist_button.Location = new System.Drawing.Point(6, 20);
+            this.EqualizeHist_button.Name = "EqualizeHist_button";
+            this.EqualizeHist_button.Size = new System.Drawing.Size(75, 23);
+            this.EqualizeHist_button.TabIndex = 1;
+            this.EqualizeHist_button.Text = "Equalize";
+            this.EqualizeHist_button.UseVisualStyleBackColor = true;
+            this.EqualizeHist_button.Click += new System.EventHandler(this.EqualizeHist_button_Click);
+            // 
+            // CLAHE_button
+            // 
+            this.CLAHE_button.Location = new System.Drawing.Point(98, 20);
+            this.CLAHE_button.Name = "CLAHE_button";
+            this.CLAHE_button.Size = new System.Drawing.Size(75, 23);
+            this.CLAHE_button.TabIndex = 0;
+            this.CLAHE_button.Text = "CLAHE";
+            this.CLAHE_button.UseVisualStyleBackColor = true;
+            this.CLAHE_button.Click += new System.EventHandler(this.CLAHE_button_Click);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(7, 75);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(84, 13);
+            this.label3.TabIndex = 12;
+            this.label3.Text = "Offset and scale";
+            // 
             // Slice_groupBox
             // 
+            this.Slice_groupBox.Controls.Add(this.ClearSliceList_button);
+            this.Slice_groupBox.Controls.Add(this.SliceCount_label);
             this.Slice_groupBox.Controls.Add(this.SliceColor_comboBox);
             this.Slice_groupBox.Controls.Add(this.CreateSlice_button);
             this.Slice_groupBox.Controls.Add(this.SliceMargin2_label);
@@ -346,56 +401,25 @@
             this.ColorMapCombobox.Text = "Color Map";
             this.ColorMapCombobox.SelectedIndexChanged += new System.EventHandler(this.ColorMapCombobox_SelectedIndexChanged);
             // 
-            // label3
+            // SliceCount_label
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(7, 75);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(84, 13);
-            this.label3.TabIndex = 12;
-            this.label3.Text = "Offset and scale";
+            this.SliceCount_label.AutoSize = true;
+            this.SliceCount_label.Location = new System.Drawing.Point(163, 135);
+            this.SliceCount_label.Name = "SliceCount_label";
+            this.SliceCount_label.Size = new System.Drawing.Size(66, 13);
+            this.SliceCount_label.TabIndex = 7;
+            this.SliceCount_label.Text = "Slice count: ";
+            this.SliceCount_label.Click += new System.EventHandler(this.SliceCount_label_Click);
             // 
-            // ImageHisto_groupBox
+            // ClearSliceList_button
             // 
-            this.ImageHisto_groupBox.Controls.Add(this.EqualizeHist_button);
-            this.ImageHisto_groupBox.Controls.Add(this.CLAHE_button);
-            this.ImageHisto_groupBox.Location = new System.Drawing.Point(264, 147);
-            this.ImageHisto_groupBox.Name = "ImageHisto_groupBox";
-            this.ImageHisto_groupBox.Size = new System.Drawing.Size(200, 151);
-            this.ImageHisto_groupBox.TabIndex = 13;
-            this.ImageHisto_groupBox.TabStop = false;
-            this.ImageHisto_groupBox.Text = "Histograms";
-            this.ImageHisto_groupBox.Enter += new System.EventHandler(this.ImageHisto_groupBox_Enter);
-            // 
-            // CLAHE_button
-            // 
-            this.CLAHE_button.Location = new System.Drawing.Point(98, 20);
-            this.CLAHE_button.Name = "CLAHE_button";
-            this.CLAHE_button.Size = new System.Drawing.Size(75, 23);
-            this.CLAHE_button.TabIndex = 0;
-            this.CLAHE_button.Text = "CLAHE";
-            this.CLAHE_button.UseVisualStyleBackColor = true;
-            this.CLAHE_button.Click += new System.EventHandler(this.CLAHE_button_Click);
-            // 
-            // EqualizeHist_button
-            // 
-            this.EqualizeHist_button.Location = new System.Drawing.Point(6, 20);
-            this.EqualizeHist_button.Name = "EqualizeHist_button";
-            this.EqualizeHist_button.Size = new System.Drawing.Size(75, 23);
-            this.EqualizeHist_button.TabIndex = 1;
-            this.EqualizeHist_button.Text = "Equalize";
-            this.EqualizeHist_button.UseVisualStyleBackColor = true;
-            this.EqualizeHist_button.Click += new System.EventHandler(this.EqualizeHist_button_Click);
-            // 
-            // SaveImages_button
-            // 
-            this.SaveImages_button.Location = new System.Drawing.Point(112, 427);
-            this.SaveImages_button.Name = "SaveImages_button";
-            this.SaveImages_button.Size = new System.Drawing.Size(75, 23);
-            this.SaveImages_button.TabIndex = 14;
-            this.SaveImages_button.Text = "Save";
-            this.SaveImages_button.UseVisualStyleBackColor = true;
-            this.SaveImages_button.Click += new System.EventHandler(this.SaveImages_button_Click);
+            this.ClearSliceList_button.Location = new System.Drawing.Point(166, 102);
+            this.ClearSliceList_button.Name = "ClearSliceList_button";
+            this.ClearSliceList_button.Size = new System.Drawing.Size(75, 23);
+            this.ClearSliceList_button.TabIndex = 8;
+            this.ClearSliceList_button.Text = "Clear list";
+            this.ClearSliceList_button.UseVisualStyleBackColor = true;
+            this.ClearSliceList_button.Click += new System.EventHandler(this.ClearSliceList_button_Click);
             // 
             // MainControlWindow
             // 
@@ -413,13 +437,13 @@
             this.Text = "Control panel";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.ImageHisto_groupBox.ResumeLayout(false);
             this.Slice_groupBox.ResumeLayout(false);
             this.Slice_groupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SliceMargin2_numericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.SliceMargin1_numericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownX)).EndInit();
-            this.ImageHisto_groupBox.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -459,6 +483,8 @@
         private System.Windows.Forms.Button CLAHE_button;
         private System.Windows.Forms.Button EqualizeHist_button;
         private System.Windows.Forms.Button SaveImages_button;
+        private System.Windows.Forms.Label SliceCount_label;
+        private System.Windows.Forms.Button ClearSliceList_button;
     }
 }
 

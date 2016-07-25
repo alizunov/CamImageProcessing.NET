@@ -17,7 +17,7 @@ namespace CamImageProcessing.NET
         // ZedGraph items
         private static Color[] ProfileColors = { Color.DeepPink,
             Color.Gold,
-            Color.Beige,
+            Color.Aqua,
             Color.Blue,
             Color.BlueViolet,
             Color.Coral,
@@ -28,6 +28,7 @@ namespace CamImageProcessing.NET
             Color.Orange,
             Color.Green,
             Color.Red };
+
         public GraphPane pane
         { get; set; }
 
@@ -40,14 +41,29 @@ namespace CamImageProcessing.NET
 
             pane = zedGraphControl1.GraphPane;
 
-            //zedGraphControl1.Invalidate();
+            CurveNumber_numericUpDown.Value = 0;
+            CurveNumber_numericUpDown.Maximum = 0;
 
         } // ctor
 
         // Methods 
         public void AddSliceProfile(List<double> SliceData, double Xshift, double Xscale)   // X = Xshift + Xscale*i_point
         {
-            //zedGraphControl1.Validate();
+            // Obtain X- and Y-limits for a new curve
+            double xmin = Xshift;
+            double xmax = Xshift + Xscale * SliceData.Count();
+            double ymin = 0;
+            double ymax = 1.2 * SliceData.Max();
+            // Scale axis if necessary
+            if (xmin < pane.XAxis.Scale.Min)
+                pane.XAxis.Scale.Min = xmin;
+            if (xmax > pane.XAxis.Scale.Max)
+                pane.XAxis.Scale.Max = xmax;
+            if (ymin < pane.XAxis.Scale.Min)
+                pane.YAxis.Scale.Min = ymin;
+            if (ymax > pane.XAxis.Scale.Max)
+                pane.YAxis.Scale.Max = ymax;
+            Console.WriteLine("New curve: xmin = {0}, xmax = {1}, ymin = {2}, ymax = {3} ", xmin, xmax, ymin, ymax);
             // ZedGraph list
             PointPairList pointlist = new PointPairList();
             for (int ip=0; ip<SliceData.Count(); ip++)
@@ -69,10 +85,12 @@ namespace CamImageProcessing.NET
                 zedGraphControl1.AxisChange();
                 // Update graph pane
                 zedGraphControl1.Invalidate();
+                // Update the curve selection numUpDown control
+                CurveNumber_numericUpDown.Maximum = pane.CurveList.Count;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("{0}: Error: could not add new profile to the graph pane. " + ex.Message);
+                Console.WriteLine("Error: could not add new profile to the graph pane. " + ex.Message);
             }
 
 
@@ -87,6 +105,25 @@ namespace CamImageProcessing.NET
         private void zedGraphControl1_Load_1(object sender, EventArgs e)
         {
 
+        }
+
+        private void ClearPane_button_Click(object sender, EventArgs e)
+        {
+            pane.CurveList.Clear();
+            pane.GraphObjList.Clear();
+            NdrawnProfiles = pane.CurveList.Count;
+            zedGraphControl1.Invalidate();
+        }
+
+        private void CurveNumber_numericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            CurveNumber_numericUpDown.Maximum = pane.CurveList.Count;
+        }
+
+        private void RemoveCurve_button_Click(object sender, EventArgs e)
+        {
+            pane.CurveList.RemoveAt((int)CurveNumber_numericUpDown.Value - 1);
+            zedGraphControl1.Invalidate();
         }
     }
 }

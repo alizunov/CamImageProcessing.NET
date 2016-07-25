@@ -30,15 +30,7 @@ namespace CamImageProcessing.NET
         private int linethickness = 1;
 
         // *** Properties ***
-        public Mat BaseMat
-        { get; }
         public Matrix<double> SliceMatrix
-        { get; set; }
-
-        public Image<Bgr, UInt16> BaseImage16
-        { get; set; }
-
-        public Image<Bgr,byte> BaseImage8
         { get; set; }
 
         public int Xsize
@@ -50,31 +42,37 @@ namespace CamImageProcessing.NET
         // *** ZedGraph properties ***
 
         // ctor
-        public CameraImageSlice(Mat mat, Image<Bgr, UInt16> img16, Image<Bgr, byte> img8, Rectangle rect, string name, Color color)
+        public CameraImageSlice(Mat mat, Rectangle rect, string name, Color color)
         {
-            BaseMat = mat;
-            BaseImage16 = img16;
-            BaseImage8 = img8;
             SliceName = name;
             ROI = rect;
             ROIcontourColor = color;
             // Check ROI, warn if wrong but try to create SliceMat hoping that the Mat ctor works safely.
-            if (ROI.X<0 || ROI.Y<0 || ROI.Right>BaseMat.Cols || ROI.Bottom>BaseMat.Rows)
+            if (ROI.X<0 || ROI.Y<0 || ROI.Right>mat.Cols || ROI.Bottom>mat.Rows)
                 Console.WriteLine("{0}: warning: wrong ROI. Will try to create the slice Mat anyway. ", MethodBase.GetCurrentMethod().Name);
             try
             {
-                Mat SliceMat = new Mat(BaseMat, ROI);
-                SliceMat.ConvertTo(SliceMat, DepthType.Cv64F);
-                SliceMatrix = new Matrix<double>(SliceMat.Size);
-                SliceMat.CopyTo(SliceMatrix);
+                //Mat SliceMat = new Mat(BaseMat, ROI);
+
+                // ROI matrix (to where data will be copied)
+                SliceMatrix = new Matrix<double>(rect.Height, rect.Width);
+                SliceMatrix.SetZero();
+                // Mask for copy operation: non-zero = ROI
+                Matrix<double> CopyMask = new Matrix<double>(mat.Rows, mat.Cols);
+                CopyMask.SetZero();
+                for (int irow = rect.Top; irow < rect.Bottom; irow++)
+                    for (int icol = rect.Left; icol < rect.Right; icol++)
+                        CopyMask[irow, icol] = 1;
+                // Copy data according to the mask
+                mat.CopyTo(SliceMatrix, CopyMask);
                 Xsize = SliceMatrix.Cols;
                 Ysize = SliceMatrix.Rows;
+                Console.WriteLine("{0}: Slice Matrix Xsize = {1}, Ysize = {2} ", MethodBase.GetCurrentMethod().Name, Xsize, Ysize);
             }
             catch (Exception ex)
             {
                 Console.WriteLine("{0}: Error: could not create the slice Mat. " + ex.Message, MethodBase.GetCurrentMethod().Name);
             }
-            //SliceCanvas = new PlotModel { Title = "Slice canvas" };
 
         }
 
