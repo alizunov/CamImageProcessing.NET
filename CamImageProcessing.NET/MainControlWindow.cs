@@ -264,7 +264,7 @@ namespace CamImageProcessing.NET
                                     comboBox1.Enabled = false;
                                 }
                                 // Create image for processing
-                                ProcessedImage = OrigImage.Clone(ProcessedImageName);
+                                ProcessedImage = new CameraImage((Int32)OrigImage.SizeY, (Int32)OrigImage.SizeX, 1, ImageReadout, ProcessedImageName);
                                 if (ProcessedImage.SizeX == OrigImage.SizeX && ProcessedImage.SizeY == OrigImage.SizeY)
                                 {
                                     //MessageBox.Show("CameraImage OK; sizes: " + OrigImage.SizeX + ", " + OrigImage.SizeY, "", MessageBoxButtons.OK);
@@ -340,7 +340,9 @@ namespace CamImageProcessing.NET
         private void ResetButton_Click(object sender, EventArgs e)
         {
             ProcessedImage.CloseAllWindows();
-            ProcessedImage = OrigImage.Clone(ProcessedImageName);
+            ProcessedImage.ClearSliceList();
+            SliceCount_label.Text = "Slice count: " + ProcessedImage.SliceList.Count.ToString();
+            ProcessedImage.Clone(OrigImage);
         }
 
         private void ZoomProcessedImagecomboBox_SelectedIndexChanged(object sender, EventArgs e)

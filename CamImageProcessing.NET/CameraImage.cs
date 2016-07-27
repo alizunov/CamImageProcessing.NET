@@ -82,30 +82,8 @@ namespace CamImageProcessing.NET
             // 0 - to activate zoom 1:1
             CurrentDownsampleFactor = 1;
             SrcImage = SrcMat.ToImage<Bgr, UInt16>();
-            //SrcImage8bit = SrcImage.Convert<Bgr, byte>();
+            SrcImage8bit = SrcImage.Convert<Bgr, byte>();
             SliceList = new List<CameraImageSlice>();
-        }
-        // ctor which clones Mat
-        public CameraImage(Mat RefMat, string ImageName)
-        {
-            SrcMat = RefMat;
-            //SrcMat = RefMat.Clone();
-            Nchannels = RefMat.NumberOfChannels;
-            minList = new List<double>(Nchannels);
-            maxList = new List<double>(Nchannels);
-            minLocationsList = new List<Point>(Nchannels);
-            maxLocationsList = new List<Point>(Nchannels);
-            Depth = SrcMat.Depth;
-            // Fill lists of min / max and location values per channel
-            MinMax();
-            ImageNameBase = ImageName;
-            // 0 - to activate zoom 1:1
-            CurrentDownsampleFactor = 1;
-            // Create the Images
-            SrcImage = SrcMat.ToImage<Bgr, UInt16>();
-            SrcImage8bit = SrcImage.ConvertScale<byte>(0.00390625, 0);  // scale = 1/256
-            SliceList = new List<CameraImageSlice>();
-
         }
 
         // Other methods
@@ -285,11 +263,19 @@ namespace CamImageProcessing.NET
             }
 
         }
-        // Clone method: Clone() for Mat and copy for other members
-        public CameraImage Clone(string NewName)
+
+        // Copy method
+        public void Clone(CameraImage SrcCamImage)
         {
-            CameraImage NewImage = new CameraImage(SrcMat, NewName);
-            return NewImage;
+            //SrcMat = new Mat(SrcCamImage.SizeY, SrcCamImage.SizeX, SrcCamImage.Depth, SrcCamImage.Nchannels);
+            SrcMat = new Mat();
+            SrcMat =  SrcCamImage.SrcMat.Clone();
+            SrcImage = new Image<Bgr, ushort>(SrcCamImage.SizeX, SrcCamImage.SizeY);
+            SrcImage = SrcMat.ToImage<Bgr, UInt16>();
+            SrcImage8bit = new Image<Bgr, byte>(SrcCamImage.SizeX, SrcCamImage.SizeY);
+            SrcImage8bit = SrcImage.Convert<Bgr, byte>();
+            SliceList = new List<CameraImageSlice>();
+            MinMax();
         }
         // Get pixel value by its coordinates
         // WARNING: creates a new array of the full size!

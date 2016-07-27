@@ -52,19 +52,24 @@ namespace CamImageProcessing.NET
                 Console.WriteLine("{0}: warning: wrong ROI. Will try to create the slice Mat anyway. ", MethodBase.GetCurrentMethod().Name);
             try
             {
-                //Mat SliceMat = new Mat(BaseMat, ROI);
+                //Mat SliceMat = new Mat(mat, rect);
+                //CvInvoke.NamedWindow("ROI");
+                //CvInvoke.Imshow("ROI", SliceMat);
+                //CvInvoke.WaitKey();
+                //CvInvoke.DestroyWindow("ROI");
+                //SliceMat.ConvertTo(SliceMat, DepthType.Cv64F);
 
+                // Full-image matrix
+                Matrix<UInt16> BigMatrix = new Matrix<UInt16>(mat.Rows, mat.Cols);
+                mat.CopyTo(BigMatrix);
                 // ROI matrix (to where data will be copied)
                 SliceMatrix = new Matrix<double>(rect.Height, rect.Width);
                 SliceMatrix.SetZero();
-                // Mask for copy operation: non-zero = ROI
-                Matrix<double> CopyMask = new Matrix<double>(mat.Rows, mat.Cols);
-                CopyMask.SetZero();
-                for (int irow = rect.Top; irow < rect.Bottom; irow++)
-                    for (int icol = rect.Left; icol < rect.Right; icol++)
-                        CopyMask[irow, icol] = 1;
-                // Copy data according to the mask
-                mat.CopyTo(SliceMatrix, CopyMask);
+                // Copy ROI pixels in a cycle
+                for (int y = 0; y < rect.Height; y++)
+                    for (int x = 0; x < rect.Width; x++)
+                        SliceMatrix[y, x] = (double)BigMatrix[rect.Top + y, rect.Left + x];
+                BigMatrix.Dispose();
                 Xsize = SliceMatrix.Cols;
                 Ysize = SliceMatrix.Rows;
                 Console.WriteLine("{0}: Slice Matrix Xsize = {1}, Ysize = {2} ", MethodBase.GetCurrentMethod().Name, Xsize, Ysize);
