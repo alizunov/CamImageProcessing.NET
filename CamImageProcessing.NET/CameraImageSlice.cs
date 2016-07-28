@@ -49,8 +49,7 @@ namespace CamImageProcessing.NET
                 SliceMatrix = new Matrix<double>(rect.Height, rect.Width);
                 using (Mat ROImat = new Mat(mat, ROI))
                 {
-                    ROImat.ConvertTo(ROImat, DepthType.Cv64F);
-                    ROImat.CopyTo(SliceMatrix);
+                    ROImat.ConvertTo(SliceMatrix, DepthType.Cv64F);
                     Xsize = SliceMatrix.Cols;
                     Ysize = SliceMatrix.Rows;
                 }

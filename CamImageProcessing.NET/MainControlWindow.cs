@@ -288,8 +288,10 @@ namespace CamImageProcessing.NET
                                     //MessageBox.Show("CameraImage BAD; sizes: " + OrigImage.SizeX + ", " + OrigImage.SizeY, "", MessageBoxButtons.OK);
                                     comboBox1.Enabled = false;
                                 }
-                                // Create image for processing
-                                ProcessedImage = new CameraImage((Int32)OrigImage.SizeY, (Int32)OrigImage.SizeX, 1, ImageReadout, ProcessedImageName);
+                                // Create image for processing (no data)
+                                ProcessedImage = new CameraImage((Int32)OrigImage.SizeY, (Int32)OrigImage.SizeX, 1, ProcessedImageName);
+                                // Clone data array
+                                ProcessedImage.Clone(OrigImage.SrcMat);
                                 if (ProcessedImage.SizeX == OrigImage.SizeX && ProcessedImage.SizeY == OrigImage.SizeY)
                                 {
                                     //MessageBox.Show("CameraImage OK; sizes: " + OrigImage.SizeX + ", " + OrigImage.SizeY, "", MessageBoxButtons.OK);
@@ -385,7 +387,7 @@ namespace CamImageProcessing.NET
             SliceROIlist.Clear();
             SliceColorList.Clear();
             SliceCount_label.Text = "Slice count: " + SliceList.Count.ToString();
-            ProcessedImage.Copy(OrigImage.SrcMat);
+            ProcessedImage.Clone(OrigImage.SrcMat);
             
             ProcessedImage.Image(image16proc);
             ProcessedImage.Image(image8proc);

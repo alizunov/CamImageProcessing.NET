@@ -47,9 +47,27 @@ namespace CamImageProcessing.NET
         public CameraImage(Int32 SizeY, Int32 SizeX, Int32 Nch, List<UInt16> Data, string ImageName)
         {
             Nchannels = Nch;
+            SrcMat = new Mat(SizeY, SizeX, DepthType.Cv16U, Nch);
             System.Runtime.InteropServices.GCHandle handle = System.Runtime.InteropServices.GCHandle.Alloc(Data.ToArray(), System.Runtime.InteropServices.GCHandleType.Pinned);
-            SrcMat = new Mat(SizeY, SizeX, DepthType.Cv16U, Nchannels, handle.AddrOfPinnedObject(), SizeX * 2);
-            handle.Free();
+            using (Mat mat = new Mat(SizeY, SizeX, DepthType.Cv16U, Nchannels, handle.AddrOfPinnedObject(), SizeX * 2))
+            {
+                handle.Free();
+                SrcMat = mat.Clone();
+            }
+            minList = new List<double>(Nchannels);
+            maxList = new List<double>(Nchannels);
+            minLocationsList = new List<Point>(Nchannels);
+            maxLocationsList = new List<Point>(Nchannels);
+            Depth = SrcMat.Depth;
+            // Fill lists of min / max and location values per channel
+            MinMax();
+        }
+
+        // ctor without copying data
+        public CameraImage(Int32 SizeY, Int32 SizeX, Int32 Nch, string ImageName)
+        {
+            Nchannels = Nch;
+            SrcMat = new Mat(SizeY, SizeX, DepthType.Cv16U, Nch);
             minList = new List<double>(Nchannels);
             maxList = new List<double>(Nchannels);
             minLocationsList = new List<Point>(Nchannels);
@@ -166,27 +184,7 @@ namespace CamImageProcessing.NET
         {
             byte[] AllowedDownsampleFactor = { 1, 2, 4, 8 };
             bool isAllowableZoom = false;
-            // zoom = 0 : only show 16-bit or 8-bit image, no scaling, no destroying previous window.
-            // This is used, for instance, after creating of lines/rectangles/etc. in Slice methods.
-            // The window must exists with the name DisplayWindowName !
-            if (zoom == 0)
-            {
-                try
-                {
-                    if (image16 != null)
-                        CvInvoke.Imshow(ImageName + ", " + "UInt16" + ", scale 1:" + PrevZoom.ToString(), image16);          //Show the image 16-bit
 
-                    if (image8 != null)
-                        CvInvoke.Imshow(ImageName + ", " + "byte" + ", scale 1:" + PrevZoom.ToString(), image8);          //Show the image 8-bit
-
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("{0}: Error: Could not update existing window. Original error: " + ex.Message, MethodBase.GetCurrentMethod().Name);
-                }
-                return;
-
-            }
             foreach (byte iF in AllowedDownsampleFactor)
             {
                 isAllowableZoom = (zoom == iF) ? true : false;
@@ -268,6 +266,12 @@ namespace CamImageProcessing.NET
             MinMax();
         }
 
+        // Clone method
+        public void Clone(Mat mat)
+        {
+            SrcMat = mat.Clone();
+            MinMax();
+        }
         // Get pixel value by its coordinates
         // WARNING: creates a new array of the full size!
         public UInt16 GetPixelValue(Point pixel)
