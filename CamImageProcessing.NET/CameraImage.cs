@@ -219,7 +219,8 @@ namespace CamImageProcessing.NET
                             foreach (Rectangle rect in SliceROI)
                             {
                                 Bgr BGRcolor = new Bgr(SliceColor.ElementAt(SliceROI.IndexOf(rect)));
-                                image8.Draw(rect, BGRcolor, 1, LineType.EightConnected);
+                                tmpImage.Draw(rect, BGRcolor, 1, LineType.EightConnected);
+                                Console.WriteLine("{0}: slice color: {1}", MethodBase.GetCurrentMethod().Name, SliceColor.ElementAt(i).ToString());
                             }
                         CvInvoke.Resize(image8, tmpImage, DstSize, 0, 0);
                         // Destroy previous zoom if the window name is not empty
