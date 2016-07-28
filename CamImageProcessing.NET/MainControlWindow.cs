@@ -33,13 +33,33 @@ namespace CamImageProcessing.NET
         const string OrigImageName = "Original Image";
         const string ProcessedImageName = "Processed Image";
 
-        // Original image, see CameraImage class desc.
+        // Original object, see CameraImage class desc.
         CameraImage OrigImage;
-        // Processed image
+        // Processed object
         CameraImage ProcessedImage;
+
+        // EmguCV Images for original
+        Image<Bgr, UInt16> image16orig;
+        Image<Bgr, byte> image8orig;
+
+        // EmguCV Images for processed
+        Image<Bgr, UInt16> image16proc;
+        Image<Bgr, byte> image8proc;
+
+        // List of "slice" objects for creating of profiles and calculations
+        List<CameraImageSlice> SliceList;
+        // Lists of slice ROI and color
+        List<Rectangle> SliceROIlist;
+        List<Color> SliceColorList;
 
         // Form for graphics
         Graphics1 GraphForm1;
+
+        // Zoom factors
+        private byte ZoomOrig;
+        private byte ZoomOrigPrev;
+        private byte ZoomProc;
+        private byte ZoomProcPrev;
 
         public MainControlWindow()
         {
@@ -78,8 +98,6 @@ namespace CamImageProcessing.NET
                         "Zoom 1:2",
                         "Zoom 1:4",
                         "Zoom 1:8"});
-            // Use 8-bit image checkbox
-            Use8bit_checkBox.Checked = false;
             // Setup UpDown inputs of X, Y coordinates for the ShowPixelValue() method
             // X-input
             numericUpDownX.Minimum = 0;
@@ -257,6 +275,13 @@ namespace CamImageProcessing.NET
                                     //MessageBox.Show("CameraImage OK; sizes: " + OrigImage.SizeX + ", " + OrigImage.SizeY, "", MessageBoxButtons.OK);
                                     comboBox1.Enabled = true;
                                     label1.Text = OrigImage.GetProperties;
+                                    // Create Images to display, copy data
+                                    image16orig = new Image<Bgr, ushort>(OrigImage.SizeX, OrigImage.SizeY);
+                                    image8orig = new Image<Bgr, byte>(OrigImage.SizeX, OrigImage.SizeY);
+                                    // Copy data from Mat
+                                    OrigImage.Image(image16orig);
+                                    OrigImage.Image(image8orig);
+                                    ZoomOrigPrev = 1;
                                 }
                                 else
                                 {
@@ -272,6 +297,17 @@ namespace CamImageProcessing.NET
                                     numericUpDownX.Maximum = ProcessedImage.SizeX;
                                     numericUpDownY.Maximum = ProcessedImage.SizeY;
                                     //label1.Text = OrigImage.GetProperties;
+                                    // Create Images to display, copy data
+                                    image16proc = new Image<Bgr, ushort>(ProcessedImage.SizeX, ProcessedImage.SizeY);
+                                    image8proc = new Image<Bgr, byte>(ProcessedImage.SizeX, ProcessedImage.SizeY);
+                                    // Copy data from Mat
+                                    ProcessedImage.Image(image16proc);
+                                    ProcessedImage.Image(image8proc);
+                                    ZoomProcPrev = 1;
+                                    // Create slice lists
+                                    SliceList = new List<CameraImageSlice>();
+                                    SliceROIlist = new List<Rectangle>();
+                                    SliceColorList = new List<Color>();
                                 }
                                 else
                                 {
@@ -306,8 +342,9 @@ namespace CamImageProcessing.NET
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             string item = comboBox1.SelectedItem.ToString();
-            byte SelectedZoom = Convert.ToByte(item.Substring(item.Length-1, 1));
-            OrigImage.ShowZoomed(SelectedZoom);
+            ZoomOrig = Convert.ToByte(item.Substring(item.Length-1, 1));
+            OrigImage.ShowZoomed(image16orig, image8orig, OrigImageName, ZoomOrig, ZoomOrigPrev, null, null);
+            ZoomOrigPrev = ZoomOrig;
             label1.Text = OrigImage.GetProperties;
         }
         // Mult-purpose progress bar to visualize some process (load image, processing image).
@@ -321,10 +358,11 @@ namespace CamImageProcessing.NET
 
         }
 
+        // Apply new color map to 8-bit mage and redraw
         private void ColorMapCombobox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ProcessedImage.ApplyColorMap((ColorMapType)ColorMapCombobox.SelectedItem);
-
+            ProcessedImage.ApplyColorMap(image8proc, (ColorMapType)ColorMapCombobox.SelectedItem);
+            ProcessedImage.ShowZoomed(image16proc, image8proc, ProcessedImageName, ZoomProc, ZoomProcPrev, SliceROIlist, SliceColorList);
         }
         // Group of controls for processing image
         private void groupBox1_Enter(object sender, EventArgs e)
@@ -334,22 +372,32 @@ namespace CamImageProcessing.NET
 
         private void ApplyButton_Click(object sender, EventArgs e)
         {
-            ProcessedImage.ShowZoomed(ProcessedImage.CurrentDownsampleFactor);
+            OrigImage.Image(image16orig);
+            OrigImage.Image(image8orig);
+            ProcessedImage.Image(image16proc);
+            ProcessedImage.Image(image8proc);
         }
         // Reset processed image to original
         private void ResetButton_Click(object sender, EventArgs e)
         {
             ProcessedImage.CloseAllWindows();
-            ProcessedImage.ClearSliceList();
-            SliceCount_label.Text = "Slice count: " + ProcessedImage.SliceList.Count.ToString();
-            ProcessedImage.Clone(OrigImage);
+            SliceList.Clear();
+            SliceROIlist.Clear();
+            SliceColorList.Clear();
+            SliceCount_label.Text = "Slice count: " + SliceList.Count.ToString();
+            ProcessedImage.Copy(OrigImage.SrcMat);
+            
+            ProcessedImage.Image(image16proc);
+            ProcessedImage.Image(image8proc);
+            ProcessedImage.ShowZoomed(image16proc, image8proc, ProcessedImageName, ZoomProc, ZoomProcPrev, SliceROIlist, SliceColorList);
         }
 
         private void ZoomProcessedImagecomboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             string item = ZoomProcessedImagecomboBox.SelectedItem.ToString();
-            byte SelectedZoom = Convert.ToByte(item.Substring(item.Length-1, 1));
-            ProcessedImage.ShowZoomed(SelectedZoom);
+            ZoomProc = Convert.ToByte(item.Substring(item.Length-1, 1));
+            ProcessedImage.ShowZoomed(image16proc, image8proc, ProcessedImageName, ZoomProc, ZoomProcPrev, SliceROIlist, SliceColorList);
+            ZoomProcPrev = ZoomProc;
             label2.Text = ProcessedImage.GetProperties;
         }
 
@@ -358,11 +406,6 @@ namespace CamImageProcessing.NET
 
         }
 
-        private void Use8bit_checkBox_CheckedChanged(object sender, EventArgs e)
-        {
-            ProcessedImage.shouldUse8bit = Use8bit_checkBox.Checked;
-            if (Use8bit_checkBox.Checked) ProcessedImage.ConvertTo8bit();
-        }
 
         private void BackgroundOffset_textBox_TextChanged(object sender, EventArgs e)
         {
@@ -444,9 +487,14 @@ namespace CamImageProcessing.NET
                 int h = ProcessedImage.SizeY - 2;
                 Color col = (Color)SliceColor_comboBox.SelectedItem;
                 Rectangle sliceROI = new Rectangle(x, 0, w, h);
-                ProcessedImage.CreateSlice(sliceROI, "Slice-1", col);
-                SliceCount_label.Text = "Slice count: " + ProcessedImage.SliceList.Count.ToString();
-                GraphForm1.AddSliceProfile(ProcessedImage.SliceList.Last().AverageCols(), 0, 1);
+                CameraImageSlice slice = new CameraImageSlice(ProcessedImage.SrcMat, sliceROI, "Slice-" + SliceList.Count.ToString(), col);
+                // Update lists
+                SliceList.Add(slice);
+                SliceROIlist.Add(sliceROI);
+                SliceColorList.Add(col);
+
+                SliceCount_label.Text = "Slice count: " + SliceList.Count.ToString();
+                GraphForm1.AddSliceProfile(SliceList.Last().AverageCols(), 0, 1);
             }
             else if (HorV_slice_comboBox.SelectedIndex == 1) // Horizontal
             {
@@ -468,19 +516,21 @@ namespace CamImageProcessing.NET
         {
             // Contrast Limited Adaptive Histogram Equalization (CLAHE)
             ProcessedImage.CLAHE();
+            ProcessedImage.ShowZoomed(image16proc, image8proc, ProcessedImageName, ZoomProc, ZoomProcPrev, SliceROIlist, SliceColorList);
             label2.Text = ProcessedImage.GetProperties;
         }
 
         private void EqualizeHist_button_Click(object sender, EventArgs e)
         {
-            ProcessedImage.EqualizeHisto();
+            ProcessedImage.EqualizeHisto(image8proc);
+            ProcessedImage.ShowZoomed(image16proc, image8proc, ProcessedImageName, ZoomProc, ZoomProcPrev, SliceROIlist, SliceColorList);
             label2.Text = ProcessedImage.GetProperties;
         }
 
         private void SaveImages_button_Click(object sender, EventArgs e)
         {
-            ProcessedImage.SrcImage.Save(ImageFileName + "-16bit.png");
-            ProcessedImage.SrcImage8bit.Save(ImageFileName + "-8bit.png");
+            image16proc.Save(ImageFileName + "-16bit.png");
+            image8proc.Save(ImageFileName + "-8bit.png");
         }
 
         private void SliceCount_label_Click(object sender, EventArgs e)
@@ -490,8 +540,11 @@ namespace CamImageProcessing.NET
 
         private void ClearSliceList_button_Click(object sender, EventArgs e)
         {
-            ProcessedImage.ClearSliceList();
-            SliceCount_label.Text = "Slice count: " + ProcessedImage.SliceList.Count.ToString();
+            SliceList.Clear();
+            SliceROIlist.Clear();
+            SliceColorList.Clear();
+
+            SliceCount_label.Text = "Slice count: " + SliceList.Count.ToString();
         }
     }
 }

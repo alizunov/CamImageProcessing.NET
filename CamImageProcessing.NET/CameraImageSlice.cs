@@ -11,9 +11,6 @@ using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 
-// Graphics
-using ZedGraph;
-
 namespace CamImageProcessing.NET
 {
     // Subsection of the image Mat. Primary designation: vertical thin slice to measure the intensity profile.
@@ -23,14 +20,13 @@ namespace CamImageProcessing.NET
     class CameraImageSlice
     {
         // *** Private members ***
+        private Matrix<double> SliceMatrix;
         private string SliceName;
-        private Rectangle ROI;
-        private Color ROIcontourColor;
-        private Emgu.CV.CvEnum.LineType linetype = Emgu.CV.CvEnum.LineType.EightConnected;
-        private int linethickness = 1;
 
         // *** Properties ***
-        public Matrix<double> SliceMatrix
+        public Rectangle ROI
+        { get; set; }
+        public Color ROIcontourColor
         { get; set; }
 
         public int Xsize
@@ -38,8 +34,6 @@ namespace CamImageProcessing.NET
 
         public int Ysize
         { get; set; }
-
-        // *** ZedGraph properties ***
 
         // ctor
         public CameraImageSlice(Mat mat, Rectangle rect, string name, Color color)
@@ -52,26 +46,14 @@ namespace CamImageProcessing.NET
                 Console.WriteLine("{0}: warning: wrong ROI. Will try to create the slice Mat anyway. ", MethodBase.GetCurrentMethod().Name);
             try
             {
-                //Mat SliceMat = new Mat(mat, rect);
-                //CvInvoke.NamedWindow("ROI");
-                //CvInvoke.Imshow("ROI", SliceMat);
-                //CvInvoke.WaitKey();
-                //CvInvoke.DestroyWindow("ROI");
-                //SliceMat.ConvertTo(SliceMat, DepthType.Cv64F);
-
-                // Full-image matrix
-                Matrix<UInt16> BigMatrix = new Matrix<UInt16>(mat.Rows, mat.Cols);
-                mat.CopyTo(BigMatrix);
-                // ROI matrix (to where data will be copied)
                 SliceMatrix = new Matrix<double>(rect.Height, rect.Width);
-                SliceMatrix.SetZero();
-                // Copy ROI pixels in a cycle
-                for (int y = 0; y < rect.Height; y++)
-                    for (int x = 0; x < rect.Width; x++)
-                        SliceMatrix[y, x] = (double)BigMatrix[rect.Top + y, rect.Left + x];
-                BigMatrix.Dispose();
-                Xsize = SliceMatrix.Cols;
-                Ysize = SliceMatrix.Rows;
+                using (Mat ROImat = new Mat(mat, ROI))
+                {
+                    ROImat.ConvertTo(ROImat, DepthType.Cv64F);
+                    ROImat.CopyTo(SliceMatrix);
+                    Xsize = SliceMatrix.Cols;
+                    Ysize = SliceMatrix.Rows;
+                }
                 Console.WriteLine("{0}: Slice Matrix Xsize = {1}, Ysize = {2} ", MethodBase.GetCurrentMethod().Name, Xsize, Ysize);
             }
             catch (Exception ex)
@@ -81,31 +63,8 @@ namespace CamImageProcessing.NET
 
         }
 
-        // Draws rectangle defined by ROI in the base image (16-bit or 8-bit depending on the usage flag). The rectangle is scaled according to the current zoom factor set on the base image.
-        public void DrawROIrectangle(bool is8bit, Image<Bgr, UInt16> img16, Image<Bgr, byte> img8, int scale)
-        {
-            try
-            {
-                int NewX = (int)ROI.X / scale;
-                int NewY = (int)ROI.Y / scale;
-                int NewWidth = (int)ROI.Width / scale;
-                int NewHeight = (int)ROI.Height / scale;
-                Console.WriteLine("{0}: ROI-X = {1}, ROI-Y = {2}, ROI-W = {3}, ROI-H = {4}, scale = {5}. ", MethodBase.GetCurrentMethod().Name, NewX, NewY, NewWidth, NewHeight, scale);
-                Bgr BGRcolor = new Bgr(ROIcontourColor);
-                Rectangle ScaledROI = new Rectangle(NewX, NewY, NewWidth, NewHeight);
-                if (is8bit)
-                    img8.Draw(ScaledROI, BGRcolor, linethickness, linetype);
-                else
-                    img16.Draw(ScaledROI, BGRcolor, linethickness, linetype);
-           }
-            catch (Exception ex)
-            {
-                Console.WriteLine("{0}: Error: could not create ROI or draw rectangle: scale = {1}. " + ex.Message, MethodBase.GetCurrentMethod().Name, scale);
-            }
 
-        }
-
-        // Averages columns like averaged_column = sum(columns)/Ncolumns, returns array.
+        // Averages columns like following: averaged_column = sum(columns)/Ncolumns, returns List<double>.
         public List<double> AverageCols()
         {
             List<double> averagedList = new List<double>();
@@ -121,5 +80,5 @@ namespace CamImageProcessing.NET
         }
     // class
     }
-// namspace
+// namespace
 }

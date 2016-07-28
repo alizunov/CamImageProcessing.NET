@@ -42,6 +42,8 @@
             this.CLAHE_button = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.Slice_groupBox = new System.Windows.Forms.GroupBox();
+            this.ClearSliceList_button = new System.Windows.Forms.Button();
+            this.SliceCount_label = new System.Windows.Forms.Label();
             this.SliceColor_comboBox = new System.Windows.Forms.ComboBox();
             this.CreateSlice_button = new System.Windows.Forms.Button();
             this.SliceMargin2_label = new System.Windows.Forms.Label();
@@ -54,14 +56,11 @@
             this.numericUpDownX = new System.Windows.Forms.NumericUpDown();
             this.OffsetTextDone_button = new System.Windows.Forms.Button();
             this.BackgroundOffset_textBox = new System.Windows.Forms.TextBox();
-            this.Use8bit_checkBox = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.ZoomProcessedImagecomboBox = new System.Windows.Forms.ComboBox();
             this.ResetButton = new System.Windows.Forms.Button();
             this.ApplyButton = new System.Windows.Forms.Button();
             this.ColorMapCombobox = new System.Windows.Forms.ComboBox();
-            this.SliceCount_label = new System.Windows.Forms.Label();
-            this.ClearSliceList_button = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.ImageHisto_groupBox.SuspendLayout();
             this.Slice_groupBox.SuspendLayout();
@@ -144,7 +143,6 @@
             this.groupBox1.Controls.Add(this.numericUpDownX);
             this.groupBox1.Controls.Add(this.OffsetTextDone_button);
             this.groupBox1.Controls.Add(this.BackgroundOffset_textBox);
-            this.groupBox1.Controls.Add(this.Use8bit_checkBox);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.ZoomProcessedImagecomboBox);
             this.groupBox1.Controls.Add(this.ResetButton);
@@ -227,6 +225,26 @@
             this.Slice_groupBox.TabStop = false;
             this.Slice_groupBox.Text = "Image slice";
             this.Slice_groupBox.Enter += new System.EventHandler(this.Slice_groupBox_Enter);
+            // 
+            // ClearSliceList_button
+            // 
+            this.ClearSliceList_button.Location = new System.Drawing.Point(166, 102);
+            this.ClearSliceList_button.Name = "ClearSliceList_button";
+            this.ClearSliceList_button.Size = new System.Drawing.Size(75, 23);
+            this.ClearSliceList_button.TabIndex = 8;
+            this.ClearSliceList_button.Text = "Clear list";
+            this.ClearSliceList_button.UseVisualStyleBackColor = true;
+            this.ClearSliceList_button.Click += new System.EventHandler(this.ClearSliceList_button_Click);
+            // 
+            // SliceCount_label
+            // 
+            this.SliceCount_label.AutoSize = true;
+            this.SliceCount_label.Location = new System.Drawing.Point(163, 135);
+            this.SliceCount_label.Name = "SliceCount_label";
+            this.SliceCount_label.Size = new System.Drawing.Size(66, 13);
+            this.SliceCount_label.TabIndex = 7;
+            this.SliceCount_label.Text = "Slice count: ";
+            this.SliceCount_label.Click += new System.EventHandler(this.SliceCount_label_Click);
             // 
             // SliceColor_comboBox
             // 
@@ -338,17 +356,6 @@
             this.BackgroundOffset_textBox.TabIndex = 6;
             this.BackgroundOffset_textBox.TextChanged += new System.EventHandler(this.BackgroundOffset_textBox_TextChanged);
             // 
-            // Use8bit_checkBox
-            // 
-            this.Use8bit_checkBox.AutoSize = true;
-            this.Use8bit_checkBox.Location = new System.Drawing.Point(7, 47);
-            this.Use8bit_checkBox.Name = "Use8bit_checkBox";
-            this.Use8bit_checkBox.Size = new System.Drawing.Size(99, 17);
-            this.Use8bit_checkBox.TabIndex = 5;
-            this.Use8bit_checkBox.Text = "Use 8-bit image";
-            this.Use8bit_checkBox.UseVisualStyleBackColor = true;
-            this.Use8bit_checkBox.CheckedChanged += new System.EventHandler(this.Use8bit_checkBox_CheckedChanged);
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -401,26 +408,6 @@
             this.ColorMapCombobox.Text = "Color Map";
             this.ColorMapCombobox.SelectedIndexChanged += new System.EventHandler(this.ColorMapCombobox_SelectedIndexChanged);
             // 
-            // SliceCount_label
-            // 
-            this.SliceCount_label.AutoSize = true;
-            this.SliceCount_label.Location = new System.Drawing.Point(163, 135);
-            this.SliceCount_label.Name = "SliceCount_label";
-            this.SliceCount_label.Size = new System.Drawing.Size(66, 13);
-            this.SliceCount_label.TabIndex = 7;
-            this.SliceCount_label.Text = "Slice count: ";
-            this.SliceCount_label.Click += new System.EventHandler(this.SliceCount_label_Click);
-            // 
-            // ClearSliceList_button
-            // 
-            this.ClearSliceList_button.Location = new System.Drawing.Point(166, 102);
-            this.ClearSliceList_button.Name = "ClearSliceList_button";
-            this.ClearSliceList_button.Size = new System.Drawing.Size(75, 23);
-            this.ClearSliceList_button.TabIndex = 8;
-            this.ClearSliceList_button.Text = "Clear list";
-            this.ClearSliceList_button.UseVisualStyleBackColor = true;
-            this.ClearSliceList_button.Click += new System.EventHandler(this.ClearSliceList_button_Click);
-            // 
             // MainControlWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -464,7 +451,6 @@
         private System.Windows.Forms.Button ResetButton;
         private System.Windows.Forms.ComboBox ZoomProcessedImagecomboBox;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.CheckBox Use8bit_checkBox;
         private System.Windows.Forms.TextBox BackgroundOffset_textBox;
         private System.Windows.Forms.Button OffsetTextDone_button;
         private System.Windows.Forms.NumericUpDown numericUpDownX;
