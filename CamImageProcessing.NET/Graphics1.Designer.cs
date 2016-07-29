@@ -33,7 +33,14 @@
             this.ClearPane_button = new System.Windows.Forms.Button();
             this.CurveNumber_numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.RemoveCurve_button = new System.Windows.Forms.Button();
+            this.ProcessSlice_groupBox = new System.Windows.Forms.GroupBox();
+            this.FitSlice_button = new System.Windows.Forms.Button();
+            this.ActiveSlice_numericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.FitPolyOrder_numericUpDown = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.CurveNumber_numericUpDown)).BeginInit();
+            this.ProcessSlice_groupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ActiveSlice_numericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.FitPolyOrder_numericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // zedGraphControl1
@@ -80,11 +87,51 @@
             this.RemoveCurve_button.UseVisualStyleBackColor = true;
             this.RemoveCurve_button.Click += new System.EventHandler(this.RemoveCurve_button_Click);
             // 
+            // ProcessSlice_groupBox
+            // 
+            this.ProcessSlice_groupBox.Controls.Add(this.FitPolyOrder_numericUpDown);
+            this.ProcessSlice_groupBox.Controls.Add(this.ActiveSlice_numericUpDown);
+            this.ProcessSlice_groupBox.Controls.Add(this.FitSlice_button);
+            this.ProcessSlice_groupBox.Location = new System.Drawing.Point(238, 536);
+            this.ProcessSlice_groupBox.Name = "ProcessSlice_groupBox";
+            this.ProcessSlice_groupBox.Size = new System.Drawing.Size(420, 60);
+            this.ProcessSlice_groupBox.TabIndex = 4;
+            this.ProcessSlice_groupBox.TabStop = false;
+            this.ProcessSlice_groupBox.Text = "Process";
+            this.ProcessSlice_groupBox.Enter += new System.EventHandler(this.ProcessSlice_groupBox_Enter);
+            // 
+            // FitSlice_button
+            // 
+            this.FitSlice_button.Location = new System.Drawing.Point(56, 19);
+            this.FitSlice_button.Name = "FitSlice_button";
+            this.FitSlice_button.Size = new System.Drawing.Size(75, 23);
+            this.FitSlice_button.TabIndex = 0;
+            this.FitSlice_button.Text = "Fit Slice";
+            this.FitSlice_button.UseVisualStyleBackColor = true;
+            this.FitSlice_button.Click += new System.EventHandler(this.FitSlice_button_Click);
+            // 
+            // ActiveSlice_numericUpDown
+            // 
+            this.ActiveSlice_numericUpDown.Location = new System.Drawing.Point(7, 21);
+            this.ActiveSlice_numericUpDown.Name = "ActiveSlice_numericUpDown";
+            this.ActiveSlice_numericUpDown.Size = new System.Drawing.Size(43, 20);
+            this.ActiveSlice_numericUpDown.TabIndex = 1;
+            this.ActiveSlice_numericUpDown.ValueChanged += new System.EventHandler(this.ActiveSlice_numericUpDown_ValueChanged);
+            // 
+            // FitPolyOrder_numericUpDown
+            // 
+            this.FitPolyOrder_numericUpDown.Location = new System.Drawing.Point(138, 20);
+            this.FitPolyOrder_numericUpDown.Name = "FitPolyOrder_numericUpDown";
+            this.FitPolyOrder_numericUpDown.Size = new System.Drawing.Size(50, 20);
+            this.FitPolyOrder_numericUpDown.TabIndex = 2;
+            this.FitPolyOrder_numericUpDown.ValueChanged += new System.EventHandler(this.FitPolyOrder_numericUpDown_ValueChanged);
+            // 
             // Graphics1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(670, 592);
+            this.ClientSize = new System.Drawing.Size(670, 608);
+            this.Controls.Add(this.ProcessSlice_groupBox);
             this.Controls.Add(this.RemoveCurve_button);
             this.Controls.Add(this.CurveNumber_numericUpDown);
             this.Controls.Add(this.ClearPane_button);
@@ -93,6 +140,9 @@
             this.Text = "Graphics1";
             this.Load += new System.EventHandler(this.Graphics1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.CurveNumber_numericUpDown)).EndInit();
+            this.ProcessSlice_groupBox.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.ActiveSlice_numericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.FitPolyOrder_numericUpDown)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -103,5 +153,9 @@
         private System.Windows.Forms.Button ClearPane_button;
         private System.Windows.Forms.NumericUpDown CurveNumber_numericUpDown;
         private System.Windows.Forms.Button RemoveCurve_button;
+        private System.Windows.Forms.GroupBox ProcessSlice_groupBox;
+        private System.Windows.Forms.Button FitSlice_button;
+        private System.Windows.Forms.NumericUpDown ActiveSlice_numericUpDown;
+        private System.Windows.Forms.NumericUpDown FitPolyOrder_numericUpDown;
     }
 }

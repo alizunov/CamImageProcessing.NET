@@ -214,15 +214,20 @@ namespace CamImageProcessing.NET
                 {
                     using (Image<Bgr, byte> tmpImage = new Image<Bgr, byte>(image8.Cols, image8.Rows))
                     {
+                        CvInvoke.Resize(image8, tmpImage, DstSize, 0, 0);
                         // Draw slice ROI
                         if (SliceROI != null)
                             foreach (Rectangle rect in SliceROI)
                             {
+                                Rectangle rectScaled = rect;
+                                rectScaled.X /= (int)zoom;
+                                rectScaled.Y /= (int)zoom;
+                                rectScaled.Width /= (int)zoom;
+                                rectScaled.Height /= (int)zoom;
                                 Bgr BGRcolor = new Bgr(SliceColor.ElementAt(SliceROI.IndexOf(rect)));
-                                tmpImage.Draw(rect, BGRcolor, 1, LineType.EightConnected);
-                                Console.WriteLine("{0}: slice color: {1}", MethodBase.GetCurrentMethod().Name, SliceColor.ElementAt(i).ToString());
+                                tmpImage.Draw(rectScaled, BGRcolor, 1, LineType.EightConnected);
+                                //Console.WriteLine("{0}: slice X: {1}, Y: {2}, W: {3}, H: {4}, color: {5}", MethodBase.GetCurrentMethod().Name, rectScaled.X, rectScaled.Y, rectScaled.Width, rectScaled.Height, SliceColor.ElementAt(SliceROI.IndexOf(rect)).ToString());
                             }
-                        CvInvoke.Resize(image8, tmpImage, DstSize, 0, 0);
                         // Destroy previous zoom if the window name is not empty
                         CvInvoke.DestroyWindow(ImageName + ", " + "byte" + ", scale 1:" + PrevZoom.ToString());
                         // Create new zoom
@@ -235,14 +240,19 @@ namespace CamImageProcessing.NET
                 {
                     using (Image<Bgr, UInt16> tmpImage = new Image<Bgr, UInt16>(image16.Cols, image16.Rows))
                     {
+                        CvInvoke.Resize(image16, tmpImage, DstSize, 0, 0);
                         // Draw slice ROI
                         if (SliceROI != null)
                             foreach (Rectangle rect in SliceROI)
                             {
+                                Rectangle rectScaled = rect;
+                                rectScaled.X /= (int)zoom;
+                                rectScaled.Y /= (int)zoom;
+                                rectScaled.Width /= (int)zoom;
+                                rectScaled.Height /= (int)zoom;
                                 Bgr BGRcolor = new Bgr(SliceColor.ElementAt(SliceROI.IndexOf(rect)));
-                                image16.Draw(rect, BGRcolor, 1, LineType.EightConnected);
+                                tmpImage.Draw(rectScaled, BGRcolor, 1, LineType.EightConnected);
                             }
-                        CvInvoke.Resize(image16, tmpImage, DstSize, 0, 0);
                         // Destroy previous zoom if the window name is not empty
                         CvInvoke.DestroyWindow(ImageName + ", " + "UInt16" + ", scale 1:" + PrevZoom.ToString());
                         // Create new zoom

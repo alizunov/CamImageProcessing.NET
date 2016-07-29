@@ -120,18 +120,19 @@ namespace CamImageProcessing.NET
             SliceMargin1_numericUpDown.Minimum = 0;
             SliceMargin2_numericUpDown.Minimum = 0;
             // Slice color combobox
-            SliceColor_comboBox.Items.AddRange(new object[] { Color.AliceBlue,
-                Color.AntiqueWhite,
-                Color.Coral,
-                Color.Cyan,
-                Color.DarkBlue,
-                Color.DarkGreen,
-                Color.DarkMagenta,
-                Color.DarkRed,
-                Color.Blue,
-                Color.Green,
-                Color.Magenta,
-                Color.Red});
+            SliceColor_comboBox.Items.AddRange(new object[] { Color.DeepPink,
+            Color.Gold,
+            Color.Aqua,
+            Color.Blue,
+            Color.BlueViolet,
+            Color.Coral,
+            Color.Crimson,
+            Color.Cyan,
+            Color.DarkBlue,
+            Color.DarkGreen,
+            Color.Orange,
+            Color.Green,
+            Color.Red });
             SliceColor_comboBox.SelectedIndex = 0;
 
             // Create a form for graphics
@@ -489,14 +490,15 @@ namespace CamImageProcessing.NET
                 int h = ProcessedImage.SizeY - 2;
                 Color col = (Color)SliceColor_comboBox.SelectedItem;
                 Rectangle sliceROI = new Rectangle(x, 0, w, h);
-                CameraImageSlice slice = new CameraImageSlice(ProcessedImage.SrcMat, sliceROI, "Slice-" + SliceList.Count.ToString(), col);
+                string name = "Slice-" + SliceList.Count.ToString();
+                CameraImageSlice slice = new CameraImageSlice(ProcessedImage.SrcMat, sliceROI, name, col);
                 // Update lists
                 SliceList.Add(slice);
                 SliceROIlist.Add(sliceROI);
                 SliceColorList.Add(col);
 
                 SliceCount_label.Text = "Slice count: " + SliceList.Count.ToString();
-                GraphForm1.AddSliceProfile(SliceList.Last().AverageCols(), 0, 1);
+                GraphForm1.AddSliceProfile(SliceList.Last().AverageCols(), 0, 1, name, col);
             }
             else if (HorV_slice_comboBox.SelectedIndex == 1) // Horizontal
             {
