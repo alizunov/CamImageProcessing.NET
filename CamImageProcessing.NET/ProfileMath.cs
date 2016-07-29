@@ -11,6 +11,9 @@ namespace CamImageProcessing.NET
 {
     class ProfileMath
     {
+        // Coefficients of fit polynom
+        private List<double> FitPolyCoeff;
+
         // *** Properties ***
         public int Npoints
         { get; set; }
@@ -37,6 +40,7 @@ namespace CamImageProcessing.NET
             Xlist = new List<double>(xx);
             Ylist = new List<double>(yy);
             Npoints = Xlist.Count;
+            FitPolyCoeff = new List<double>();
         }
 
         // Fits polynom pN to the data, returns polynom coefficient array[N+1]
@@ -58,6 +62,10 @@ namespace CamImageProcessing.NET
             {
                 Console.WriteLine(" Error: Could not make fit of order {0} of {1}. Original error: " + ex.Message, N, ProfileName);
             }
+            // Put result into list
+            FitPolyCoeff.Clear();
+            foreach (double v in p)
+                FitPolyCoeff.Add(v);
 
             return Poly(Xlist.ToArray(), p);
         }
@@ -82,5 +90,117 @@ namespace CamImageProcessing.NET
             }
             return vl.ToArray();
         }
+
+        public double ZeroLeft()
+        // Gets left point of zero intersection of the polynom 
+        {
+            double x0 = Xlist.ElementAt(0);
+            double dx = Xlist.ElementAt(1) - x0;
+            double x = x0;
+            while (Poly(x, FitPolyCoeff.ToArray()) >= 0)
+                x -= dx;
+            return x + dx;
+        }
+
+        public double ZeroRight()
+        // Gets left point of zero intersection of the polynom 
+        {
+            double x0 = Xlist.ElementAt(0);
+            double dx = Xlist.ElementAt(1) - x0;
+            double x = Xlist.Last();
+            while (Poly(x, FitPolyCoeff.ToArray()) >= 0)
+                x += dx;
+            return x - dx;
+        }
+
+        /// <summary>
+        /// Makes extended X array where the fit polynom >= 0
+        /// </summary>
+        public double[] XarrayExt(double Xleft, double Xright)
+        {
+            List<double> XX = new List<double>(Xlist);
+            double x0 = Xlist.ElementAt(0);
+            double dx = Xlist.ElementAt(1) - x0;
+            double x = Xlist.Last();
+            while (x <= Xright)
+            {
+                x += dx;
+                XX.Add(x);
+            }
+            x = x0;
+            while (x >= Xleft)
+            {
+                x -= dx;
+                XX.Insert(0, x);
+            }
+            return XX.ToArray();
+        }
+
+        /// <summary>
+        /// Calculates coefficients of the derivative of the fit polynom.
+        /// Coeff. with x^(N-1): N*P_N
+        /// </summary>
+       public double[] PolyDerivative(double[] p)
+        {
+            List<double> pd = new List<double>();
+            for (int i = 0; i < FitPolyCoeff.Count - 1; i++)
+                pd.Add(i * FitPolyCoeff.ElementAt(i));
+            return pd.ToArray();
+        }
+
+        /// <summary>
+        /// Calculates integral for an array Y[]: Int = Sum_N0-to-N1 (Y_i * dx)
+        /// </summary>
+        public double DefiniteIntegral(double[] Y, int N0, int N1, double dx)
+        {
+            double v = 0;
+            // Check integration limits
+            if (N1 <= N0 || N1 >= Y.Length)
+                return 0;
+
+            for (int i = N0; i < N1; i++)
+                v += Y[i];
+            return v * dx;
+        }
+
+        /// <summary>
+        /// Abel inversion procedure:
+        /// 1. Gets x[] and y[] = polyN[]
+        /// 2. Calculates extended xExt[] from left zero crossing to right
+        /// 3. Calculates the solution of the integral equation
+        /// SEPARATELY FOR LEFT AND RIGHT PARTS of xExt[] (split point - middle of x[], which is the center of original data array)
+        /// Assumes axial "half-symmetry" for both parts of the target function.
+        /// 4. Returns target function g[] in the extended range xExt[].
+        /// </summary>
+        public double[] AbelInversionPoly(double[] x, double[] y)
+        {
+            double XleftLimit = ZeroLeft();
+            double XrightLimit = ZeroRight();
+            double dx = Xlist.ElementAt(1) - Xlist.ElementAt(0);
+            // "Axis" of both parts
+            double separatorX = (Xlist.Last() - Xlist.ElementAt(0)) / 2;
+            // Prepare extended x-array from left zero crossing to right
+            List<double> Xext = new List<double>(XarrayExt(XleftLimit, XrightLimit));
+            // Prepare two part x-arrays
+            List<double> XextLeft = new List<double>();
+            List<double> XextRight = new List<double>();
+            int ix = 0;
+            while (Xext.ElementAt(ix) < separatorX)
+            {
+                XextLeft.Add(Xext.ElementAt(ix++));
+            }
+            int separatorIndex = ix;
+            XextRight = XextRight.GetRange(separatorIndex, Xext.Count - separatorIndex);    // +1 ??
+            // Prepare arrays Y[] and dY/dX[] (polyN and its derivative) for left and right parts of the extended x-array
+            List<double> YextLeft = new List<double>(Poly(XextLeft.ToArray(), FitPolyCoeff.ToArray()));
+            List<double> dYextLeft = new List<double>(Poly(XextLeft.ToArray(), PolyDerivative(FitPolyCoeff.ToArray())));
+            List<double> YextRight = new List<double>(Poly(XextRight.ToArray(), FitPolyCoeff.ToArray()));
+            List<double> dYextRight = new List<double>(Poly(XextRight.ToArray(), PolyDerivative(FitPolyCoeff.ToArray())));
+            // Continue here ..
+
+            return null;
+        }
+
+
     }
 }
