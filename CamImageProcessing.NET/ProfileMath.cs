@@ -171,34 +171,77 @@ namespace CamImageProcessing.NET
         /// SEPARATELY FOR LEFT AND RIGHT PARTS of xExt[] (split point - middle of x[], which is the center of original data array)
         /// Assumes axial "half-symmetry" for both parts of the target function.
         /// 4. Returns target function g[] in the extended range xExt[].
+        /// WARNING: call FitPoly() method before this method !
         /// </summary>
         public double[] AbelInversionPoly(double[] x, double[] y)
         {
             double XleftLimit = ZeroLeft();
             double XrightLimit = ZeroRight();
             double dx = Xlist.ElementAt(1) - Xlist.ElementAt(0);
-            // "Axis" of both parts
-            double separatorX = (Xlist.Last() - Xlist.ElementAt(0)) / 2;
+            // "Axis" of both parts: x = 0
             // Prepare extended x-array from left zero crossing to right
             List<double> Xext = new List<double>(XarrayExt(XleftLimit, XrightLimit));
             // Prepare two part x-arrays
             List<double> XextLeft = new List<double>();
             List<double> XextRight = new List<double>();
             int ix = 0;
-            while (Xext.ElementAt(ix) < separatorX)
+            while (Xext.ElementAt(ix) < 0)
             {
                 XextLeft.Add(Xext.ElementAt(ix++));
             }
             int separatorIndex = ix;
             XextRight = XextRight.GetRange(separatorIndex, Xext.Count - separatorIndex);    // +1 ??
             // Prepare arrays Y[] and dY/dX[] (polyN and its derivative) for left and right parts of the extended x-array
-            List<double> YextLeft = new List<double>(Poly(XextLeft.ToArray(), FitPolyCoeff.ToArray()));
             List<double> dYextLeft = new List<double>(Poly(XextLeft.ToArray(), PolyDerivative(FitPolyCoeff.ToArray())));
-            List<double> YextRight = new List<double>(Poly(XextRight.ToArray(), FitPolyCoeff.ToArray()));
             List<double> dYextRight = new List<double>(Poly(XextRight.ToArray(), PolyDerivative(FitPolyCoeff.ToArray())));
-            // Continue here ..
+            // Lists of calculated semi-profiles (excited atom density in case of measurements of emission intensity
+            List<double> nLeft = new List<double>();
+            List<double> nRight = new List<double>();
+            // Function under Abel integral
+            List<double> fInt = new List<double>();
 
-            return null;
+            // ## Calculation of the left part ##
+            // Mirror left side to the positive half-plane
+            // That means index = MaxCount - i
+            for (double Rleft = 0; Rleft > XleftLimit; Rleft -= dx)
+            {
+                int Index = XextLeft.Count - (int)Math.Abs(Rleft / dx);
+                // I'm not sure about element-wise operations with arrays, so lets do it by hands
+                for (double rl = Rleft; rl > XleftLimit; rl -= dx)
+                {
+                    int index = XextLeft.Count - (int)Math.Abs((rl / dx));
+                    if (rl == Rleft)
+                        fInt.Add(0);
+                    else
+                        fInt.Add(dYextLeft.ElementAt(index) / Math.Sqrt(rl * rl - Rleft * Rleft));
+                }
+                nLeft.Add( DefiniteIntegral(fInt.ToArray(), Index, XextLeft.Count, dx) );
+            }
+            // ## Calculation of the right part ##
+            fInt.Clear();
+            for (double Rright = 0; Rright < XrightLimit; Rright += dx)
+            {
+                int Index = (int)(Rright / dx);
+                for (double rr = Rright; rr < XrightLimit; rr += dx)
+                {
+                    int index = (int)(rr / dx);
+                    if (rr == Rright)
+                        fInt.Add(0);
+                    else
+                        fInt.Add(dYextRight.ElementAt(index) / Math.Sqrt(rr * rr - Rright * Rright));
+                    nRight.Add(DefiniteIntegral(fInt.ToArray(), Index, XextRight.Count, dx));
+                }
+            }
+            // Merge both parts into a single list
+            nLeft.Reverse();
+            List<double> nExt = new List<double>(nLeft.Count + nRight.Count);
+            nExt.AddRange(nLeft);
+            nExt.AddRange(nRight);
+            // Scale output to the maximum of input function
+            double coeff = (nExt.Max() != 0) ? Ylist.Max() / nExt.Max() : 1;
+            for (int i = 0; i < nExt.Count; i++)
+                nExt[i] *= coeff;
+            return nExt.ToArray();
         }
 
 

@@ -39,8 +39,10 @@ namespace CamImageProcessing.NET
         public void AddSliceProfile(List<double> SliceData, double Xshift, double Xscale, string name, Color color)   // X = Xshift + Xscale*i_point
         {
             // Obtain X- and Y-limits for a new curve
-            double xmin = Xshift;
-            double xmax = Xshift + Xscale * SliceData.Count();
+            // Xshift input is not used. 
+            // *** x = 0 is the middle of x[] ***
+            double xmin = -0.5 * Xscale * SliceData.Count;
+            double xmax = 0.5 * Xscale * SliceData.Count;
             double ymin = 0;
             double ymax = 1.2 * SliceData.Max();
             // Scale axis if necessary
@@ -57,7 +59,7 @@ namespace CamImageProcessing.NET
             PointPairList pointlist = new PointPairList();
             for (int ip=0; ip<SliceData.Count(); ip++)
             {
-                pointlist.Add(Xshift + ip * Xscale, SliceData.ElementAt(ip));
+                pointlist.Add(xmin + ip * Xscale, SliceData.ElementAt(ip));
             }
             // ZedGraph curve
             string CurveName = name;
