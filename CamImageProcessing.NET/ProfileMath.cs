@@ -12,7 +12,8 @@ namespace CamImageProcessing.NET
     class ProfileMath
     {
         // Coefficients of fit polynom
-        private List<double> FitPolyCoeff;
+        public List<double> FitPolyCoeff
+        { get; set; }
 
         // *** Properties ***
         public int Npoints
@@ -91,26 +92,40 @@ namespace CamImageProcessing.NET
             return vl.ToArray();
         }
 
+        /// <summary>
+        /// Gets LEFT point of "zero intersection". The polyN is continued by f = ax^2 + bx + c
+        /// Boundary conditions: (1) PolyN(x_b) = f(x_b); (2) d/dx(PolyN(x_b)) = df/dx(x_b)
+        /// </summary>
         public double ZeroLeft()
-        // Gets left point of zero intersection of the polynom 
         {
+            // If there are no polyN coeff., return 0
+            if (FitPolyCoeff.Count == 0)
+                return 0;
+
             double x0 = Xlist.ElementAt(0);
-            double dx = Xlist.ElementAt(1) - x0;
-            double x = x0;
-            while (Poly(x, FitPolyCoeff.ToArray()) >= 0)
-                x -= dx;
-            return x + dx;
+            double dx = Xlist.ElementAt(1) - Xlist.ElementAt(0);
+            double a = Poly(x0, PolyDerivative(FitPolyCoeff.ToArray())) / (2 * x0);
+            double c = Poly(x0, FitPolyCoeff.ToArray()) - a * x0 * x0;
+            Console.WriteLine("ZeroLeft: fit approximation f = ax^2+c : a = {0}, c = {1}, d/dx(polyN)(x0) = {2}", a, c, Poly(x0, PolyDerivative(FitPolyCoeff.ToArray())));
+            return -dx * Math.Floor(Math.Sqrt(Math.Abs(c / a)) / dx);
         }
 
+        /// <summary>
+        /// Gets RIGHT point of "zero intersection". The polyN is continued by f = a*(x-xc)^2
+        /// Boundary conditions: (1) PolyN(x_b) = f(x_b); (2) d/dx(PolyN(x_b)) = df/dx(x_b)
+        /// </summary>
         public double ZeroRight()
-        // Gets left point of zero intersection of the polynom 
         {
-            double x0 = Xlist.ElementAt(0);
-            double dx = Xlist.ElementAt(1) - x0;
-            double x = Xlist.Last();
-            while (Poly(x, FitPolyCoeff.ToArray()) >= 0)
-                x += dx;
-            return x - dx;
+            // If there are no polyN coeff., return 0
+            if (FitPolyCoeff.Count == 0)
+                return 0;
+
+            double x0 = Xlist.Last();
+            double dx = Xlist.ElementAt(1) - Xlist.ElementAt(0);
+            double a = Poly(x0, PolyDerivative(FitPolyCoeff.ToArray())) / (2 * x0);
+            double c = Poly(x0, FitPolyCoeff.ToArray()) - a * x0 * x0;
+            Console.WriteLine("ZeroRight: fit approximation f = ax^2+c : a = {0}, c = {1}, d/dx(polyN)(x0) = {2}", a, c, Poly(x0, PolyDerivative(FitPolyCoeff.ToArray())));
+            return dx * Math.Floor(Math.Sqrt(Math.Abs(c / a)) / dx);
         }
 
         /// <summary>
@@ -173,7 +188,7 @@ namespace CamImageProcessing.NET
         /// 4. Returns target function g[] in the extended range xExt[].
         /// WARNING: call FitPoly() method before this method !
         /// </summary>
-        public double[] AbelInversionPoly(double[] x, double[] y)
+        public double[] AbelInversionPoly()
         {
             double XleftLimit = ZeroLeft();
             double XrightLimit = ZeroRight();

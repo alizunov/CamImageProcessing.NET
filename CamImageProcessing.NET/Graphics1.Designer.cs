@@ -34,13 +34,14 @@
             this.CurveNumber_numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.RemoveCurve_button = new System.Windows.Forms.Button();
             this.ProcessSlice_groupBox = new System.Windows.Forms.GroupBox();
-            this.FitSlice_button = new System.Windows.Forms.Button();
-            this.ActiveSlice_numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.FitPolyOrder_numericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.ActiveSlice_numericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.FitSlice_button = new System.Windows.Forms.Button();
+            this.Abel_button = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.CurveNumber_numericUpDown)).BeginInit();
             this.ProcessSlice_groupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ActiveSlice_numericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.FitPolyOrder_numericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ActiveSlice_numericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // zedGraphControl1
@@ -89,6 +90,7 @@
             // 
             // ProcessSlice_groupBox
             // 
+            this.ProcessSlice_groupBox.Controls.Add(this.Abel_button);
             this.ProcessSlice_groupBox.Controls.Add(this.FitPolyOrder_numericUpDown);
             this.ProcessSlice_groupBox.Controls.Add(this.ActiveSlice_numericUpDown);
             this.ProcessSlice_groupBox.Controls.Add(this.FitSlice_button);
@@ -100,6 +102,22 @@
             this.ProcessSlice_groupBox.Text = "Process";
             this.ProcessSlice_groupBox.Enter += new System.EventHandler(this.ProcessSlice_groupBox_Enter);
             // 
+            // FitPolyOrder_numericUpDown
+            // 
+            this.FitPolyOrder_numericUpDown.Location = new System.Drawing.Point(138, 20);
+            this.FitPolyOrder_numericUpDown.Name = "FitPolyOrder_numericUpDown";
+            this.FitPolyOrder_numericUpDown.Size = new System.Drawing.Size(50, 20);
+            this.FitPolyOrder_numericUpDown.TabIndex = 2;
+            this.FitPolyOrder_numericUpDown.ValueChanged += new System.EventHandler(this.FitPolyOrder_numericUpDown_ValueChanged);
+            // 
+            // ActiveSlice_numericUpDown
+            // 
+            this.ActiveSlice_numericUpDown.Location = new System.Drawing.Point(7, 21);
+            this.ActiveSlice_numericUpDown.Name = "ActiveSlice_numericUpDown";
+            this.ActiveSlice_numericUpDown.Size = new System.Drawing.Size(43, 20);
+            this.ActiveSlice_numericUpDown.TabIndex = 1;
+            this.ActiveSlice_numericUpDown.ValueChanged += new System.EventHandler(this.ActiveSlice_numericUpDown_ValueChanged);
+            // 
             // FitSlice_button
             // 
             this.FitSlice_button.Location = new System.Drawing.Point(56, 19);
@@ -110,21 +128,15 @@
             this.FitSlice_button.UseVisualStyleBackColor = true;
             this.FitSlice_button.Click += new System.EventHandler(this.FitSlice_button_Click);
             // 
-            // ActiveSlice_numericUpDown
+            // Abel_button
             // 
-            this.ActiveSlice_numericUpDown.Location = new System.Drawing.Point(7, 21);
-            this.ActiveSlice_numericUpDown.Name = "ActiveSlice_numericUpDown";
-            this.ActiveSlice_numericUpDown.Size = new System.Drawing.Size(43, 20);
-            this.ActiveSlice_numericUpDown.TabIndex = 1;
-            this.ActiveSlice_numericUpDown.ValueChanged += new System.EventHandler(this.ActiveSlice_numericUpDown_ValueChanged);
-            // 
-            // FitPolyOrder_numericUpDown
-            // 
-            this.FitPolyOrder_numericUpDown.Location = new System.Drawing.Point(138, 20);
-            this.FitPolyOrder_numericUpDown.Name = "FitPolyOrder_numericUpDown";
-            this.FitPolyOrder_numericUpDown.Size = new System.Drawing.Size(50, 20);
-            this.FitPolyOrder_numericUpDown.TabIndex = 2;
-            this.FitPolyOrder_numericUpDown.ValueChanged += new System.EventHandler(this.FitPolyOrder_numericUpDown_ValueChanged);
+            this.Abel_button.Location = new System.Drawing.Point(194, 20);
+            this.Abel_button.Name = "Abel_button";
+            this.Abel_button.Size = new System.Drawing.Size(94, 23);
+            this.Abel_button.TabIndex = 3;
+            this.Abel_button.Text = "Abel inversion";
+            this.Abel_button.UseVisualStyleBackColor = true;
+            this.Abel_button.Click += new System.EventHandler(this.Abel_button_Click);
             // 
             // Graphics1
             // 
@@ -141,8 +153,8 @@
             this.Load += new System.EventHandler(this.Graphics1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.CurveNumber_numericUpDown)).EndInit();
             this.ProcessSlice_groupBox.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.ActiveSlice_numericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.FitPolyOrder_numericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ActiveSlice_numericUpDown)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -157,5 +169,6 @@
         private System.Windows.Forms.Button FitSlice_button;
         private System.Windows.Forms.NumericUpDown ActiveSlice_numericUpDown;
         private System.Windows.Forms.NumericUpDown FitPolyOrder_numericUpDown;
+        private System.Windows.Forms.Button Abel_button;
     }
 }

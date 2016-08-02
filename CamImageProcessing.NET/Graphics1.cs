@@ -181,5 +181,67 @@ namespace CamImageProcessing.NET
         {
 
         }
+
+        private void Abel_button_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Prepare X,Y values
+                int CurveNumber = (int)ActiveSlice_numericUpDown.Value;
+                CurveItem ActiveSlice = pane.CurveList.ElementAt(CurveNumber);
+                List<PointPair> pp = new List<PointPair>();
+                pp = (List<PointPair>)ActiveSlice.Points.Clone();
+                List<double> xl = new List<double>();
+                List<double> yl = new List<double>();
+                // Split poinpairs to x,y
+                for (int i = 0; i < pp.Count; i++)
+                {
+                    xl.Add(pp.ElementAt(i).X);
+                    yl.Add(pp.ElementAt(i).Y);
+                }
+                // Create ProfileMath object
+                string nameFit = pane.CurveList.ElementAt(CurveNumber).Label.Text + "-poly" + FitPolyOrder_numericUpDown.Value.ToString();
+                ProfileMath SliceMath = new ProfileMath(xl, yl, nameFit);
+                // Fit PolyN and create a new curve
+                List<double> yFit = new List<double>(SliceMath.FitPoly((int)FitPolyOrder_numericUpDown.Value));
+                double Xleft = SliceMath.ZeroLeft();
+                double Xright = SliceMath.ZeroRight();
+                double Xscale = xl.ElementAt(1) - xl.ElementAt(0);
+                xl.Clear();
+                yl.Clear();
+                pp.Clear();
+                // Create a new curve in an extended x-range (from left zero crossing to right)
+                Console.WriteLine("AbelInversion: source x-range: {0} .. {1}, extended range: {2} .. {3}", SliceMath.Xlist.ElementAt(0), SliceMath.Xlist.Last(), Xleft, Xright);
+                // Test: derivative of polyN
+                List<double> polyDer = new List<double>(SliceMath.PolyDerivative(SliceMath.FitPolyCoeff.ToArray()));
+                List<double> yDer = new List<double>(SliceMath.Poly(SliceMath.Xlist.ToArray(), polyDer.ToArray()));
+                double dYmax = yDer.Max();
+                for (int i = 0; i < yDer.Count; i++)
+                    yDer[i] *= SliceMath.Ylist.Max() / dYmax;
+                // Test: scale derivative to fit ~ the same Y range
+                AddSliceProfile(yDer, SliceMath.Xlist.ElementAt(0), Xscale, nameFit, Color.DarkBlue);
+                // Display style
+                LineItem myFit = (LineItem)pane.CurveList.Last();
+                myFit.Line.IsVisible = true;
+                myFit.Line.Width = 2;
+                // Move fit curve one position higher in the CurveList
+                int index = pane.CurveList.IndexOf(nameFit);
+                pane.CurveList.Move(index, -1);
+                // Update 
+                zedGraphControl1.Invalidate();
+                // Abel inversion of the smoothed profile given by the PolyN fit. Create a new curve for the solution.
+                //List<double> yAbel = new List<double>(SliceMath.AbelInversionPoly());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: Could not make Abel inversion for curve #{0}. Original error: " + ex.Message, ActiveSlice_numericUpDown.Value);
+            }
+
+
+
+            ActiveSlice_numericUpDown.Maximum = pane.CurveList.Count - 1;
+            CurveNumber_numericUpDown.Maximum = pane.CurveList.Count - 1;
+
+        }
     }
 }
