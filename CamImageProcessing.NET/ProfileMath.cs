@@ -28,7 +28,23 @@ namespace CamImageProcessing.NET
         public string ProfileName
         { get; set; }
 
-        // ctor of the data array
+        /// <summary>
+        /// Switch of direction to approximate fit function outside the input x-range.
+        /// </summary>
+        public enum ApproximationDirection : byte { LEFT=0, RIGHT=1 };
+
+        /// <summary>
+        /// Switch of method to continue the fit function outside the input x-range.
+        /// Using poly2 = p0 + p1*x + p2*x^2
+        /// 0: LINEAR: p2 = 0
+        /// 1,2: parabola branches up or down
+        /// </summary>
+        public enum ApproximationOusideXrange : byte { LINEAR=0, PARABOLIC_POSITIVE=1, PARABOLIC_NEGATIVE=2 };
+
+        // *** Methods ***
+        /// <summary>
+        /// // ctor allocates x- and y-lists.
+        /// </summary>
         public ProfileMath(List<double> xx, List<double> yy, string name)
         {
             if (xx.Count == 0 || yy.Count == 0 || xx.Count != yy.Count)
@@ -44,7 +60,9 @@ namespace CamImageProcessing.NET
             FitPolyCoeff = new List<double>();
         }
 
-        // Fits polynom pN to the data, returns polynom coefficient array[N+1]
+        /// <summary>
+        /// Fits polynom poly_N to the Xlist data, returns polynom coefficient array[N+1]. Fills ProfileMath.FitPolyCoeff list with these coefficients.
+        /// </summary>
         public double[] FitPoly(int N)
         {
             double[] p = { };
@@ -57,7 +75,7 @@ namespace CamImageProcessing.NET
             try
             {
                 p = Fit.Polynomial(Xlist.ToArray(), Ylist.ToArray(), N);
-                Console.WriteLine(" FitPoly: number of fit polinom coefficients: {0}. ", p.Length);
+                Console.WriteLine(" FitPoly: number of fit polynom coefficients: {0}. ", p.Length);
             }
             catch (Exception ex)
             {
@@ -68,7 +86,7 @@ namespace CamImageProcessing.NET
             foreach (double v in p)
                 FitPolyCoeff.Add(v);
 
-            return Poly(Xlist.ToArray(), p);
+            return p;
         }
 
         // Function Poly(double x) or Poly (double[] x)
@@ -93,10 +111,18 @@ namespace CamImageProcessing.NET
         }
 
         /// <summary>
-        /// Gets LEFT point of "zero intersection". The polyN is continued by f = ax^2 + bx + c
+        /// This method uses poly2 = p0 + p1*x + p2*x^2 used to lock an extended x-range between left/right zero crossing and input x-range.
+        /// Method returns the array of poly2 coefficients for a right side if arg=RIGHT and for a left side if arg=LEFT
+        /// </summary>
+        public double[] GetLockFunction(ApproximationDirection dir)
+        {
+            return null;
+        }
+        /// <summary>
+        /// Gets LEFT point of "zero intersection". The polyN is continued by f = p0 + p1*x + p2*x^2 (poly2) with coefficients depending on the enum argument.
         /// Boundary conditions: (1) PolyN(x_b) = f(x_b); (2) d/dx(PolyN(x_b)) = df/dx(x_b)
         /// </summary>
-        public double ZeroLeft()
+        public double ZeroLeft(ApproximationOusideXrange method)
         {
             // If there are no polyN coeff., return 0
             if (FitPolyCoeff.Count == 0)
@@ -104,17 +130,40 @@ namespace CamImageProcessing.NET
 
             double x0 = Xlist.ElementAt(0);
             double dx = Xlist.ElementAt(1) - Xlist.ElementAt(0);
-            double a = Poly(x0, PolyDerivative(FitPolyCoeff.ToArray())) / (2 * x0);
-            double c = Poly(x0, FitPolyCoeff.ToArray()) - a * x0 * x0;
-            Console.WriteLine("ZeroLeft: fit approximation f = ax^2+c : a = {0}, c = {1}, d/dx(polyN)(x0) = {2}", a, c, Poly(x0, PolyDerivative(FitPolyCoeff.ToArray())));
-            return -dx * Math.Floor(Math.Sqrt(Math.Abs(c / a)) / dx);
+            double[] p = { 0, 0, 0 };
+            Console.WriteLine("ZeroLeft: fit approximation - {0}", method);
+            switch (method)
+            {
+                case ApproximationOusideXrange.LINEAR:
+                    p[2] = 0;
+                    p[1] = Poly(x0, PolyDerivative(FitPolyCoeff.ToArray()));
+                    p[0] = Poly(x0, FitPolyCoeff.ToArray()) - p[1] * x0;
+                    break;
+                case ApproximationOusideXrange.PARABOLIC_NEGATIVE:
+                    p[1] = 0;
+                    p[2] = Poly(x0, PolyDerivative(FitPolyCoeff.ToArray())) / (2 * x0);
+                    p[0] = Poly(x0, FitPolyCoeff.ToArray()) - p[2] * x0 * x0;
+                    break;
+                case ApproximationOusideXrange.PARABOLIC_POSITIVE:
+                    double xc = x0 - 2 * Poly(x0, FitPolyCoeff.ToArray()) / Poly(x0, PolyDerivative(FitPolyCoeff.ToArray()));
+                    double a = 0.25 * Math.Pow(Poly(x0, PolyDerivative(FitPolyCoeff.ToArray())), 2) / Poly(x0, FitPolyCoeff.ToArray());
+                    p[0] = a * xc * xc;
+                    p[1] = -2 * a * xc;
+                    p[2] = a;
+                    break;
+                default:
+                    break;
+            }
+            Tuple<System.Numerics.Complex, System.Numerics.Complex> C_roots = FindRoots.Quadratic(p[0], p[1], p[2]);
+
+            return 0;
         }
 
         /// <summary>
-        /// Gets RIGHT point of "zero intersection". The polyN is continued by f = a*(x-xc)^2
+        /// Gets RIGHT point of "zero intersection". The polyN is continued by f = p0 + p1*x + p2*x^2 (poly2) with coefficients depending on the enum argument.
         /// Boundary conditions: (1) PolyN(x_b) = f(x_b); (2) d/dx(PolyN(x_b)) = df/dx(x_b)
         /// </summary>
-        public double ZeroRight()
+        public double ZeroRight(ApproximationOusideXrange method)
         {
             // If there are no polyN coeff., return 0
             if (FitPolyCoeff.Count == 0)
@@ -158,8 +207,9 @@ namespace CamImageProcessing.NET
        public double[] PolyDerivative(double[] p)
         {
             List<double> pd = new List<double>();
-            for (int i = 0; i < FitPolyCoeff.Count - 1; i++)
-                pd.Add(i * FitPolyCoeff.ElementAt(i));
+            pd.Add(0);
+            for (int i = 1; i < FitPolyCoeff.Count - 1; i++)
+                pd.Add((i + 1) * FitPolyCoeff.ElementAt(i + 1));
             return pd.ToArray();
         }
 

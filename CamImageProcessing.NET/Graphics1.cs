@@ -18,8 +18,9 @@ namespace CamImageProcessing.NET
         public GraphPane pane
         { get; set; }
 
-        // Number of slice profiles drawin in the pane.
-        public int NdrawnProfiles;
+        // Normalization coefficient for all slice curves
+        public double CurveNormCoefficient
+        { get; set; }
 
         public Graphics1()
         {
@@ -36,7 +37,7 @@ namespace CamImageProcessing.NET
         } // ctor
 
         // Methods 
-        public void AddSliceProfile(List<double> SliceData, double Xshift, double Xscale, string name, Color color)   // X = Xshift + Xscale*i_point
+        public void AddSliceProfile(List<double> SliceData, double Xshift, double Xscale, string name, Color color, bool toScale = false)   // X = Xshift + Xscale*i_point
         {
             // Obtain X- and Y-limits for a new curve
             // Xshift input is not used. 
@@ -44,7 +45,15 @@ namespace CamImageProcessing.NET
             double xmin = -0.5 * Xscale * SliceData.Count;
             double xmax = 0.5 * Xscale * SliceData.Count;
             double ymin = 0;
-            double ymax = 1.2 * SliceData.Max();
+            // Look at current curve count, calculate CurveNormCoefficient if no curves drawn so far
+            if (pane.CurveList.Count == 0)
+            {
+                // CurveNormCoefficient = 10^n
+                int n10 = (int)Math.Log10(SliceData.Max());
+                CurveNormCoefficient = Math.Pow(10, -n10);
+            }
+            double yscale = (toScale) ? CurveNormCoefficient : 1;
+            double ymax = SliceData.Max() * yscale;
             // Scale axis if necessary
             if (xmin < pane.XAxis.Scale.Min)
                 pane.XAxis.Scale.Min = xmin;
@@ -54,12 +63,12 @@ namespace CamImageProcessing.NET
                 pane.YAxis.Scale.Min = ymin;
             if (ymax > pane.XAxis.Scale.Max)
                 pane.YAxis.Scale.Max = ymax;
-            Console.WriteLine("New curve: xmin = {0}, xmax = {1}, ymin = {2}, ymax = {3} ", xmin, xmax, ymin, ymax);
+            Console.WriteLine("New curve: xmin = {0}, xmax = {1}, ymin = {2}, ymax = {3} ", xmin, xmax, ymin, SliceData.Max());
             // ZedGraph list
             PointPairList pointlist = new PointPairList();
             for (int ip=0; ip<SliceData.Count(); ip++)
             {
-                pointlist.Add(xmin + ip * Xscale, SliceData.ElementAt(ip));
+                pointlist.Add(xmin + ip * Xscale, yscale * SliceData.ElementAt(ip));
             }
             // ZedGraph curve
             string CurveName = name;
@@ -67,7 +76,7 @@ namespace CamImageProcessing.NET
             {
                 pane.Title.Text = "Slice profiles";
                 pane.XAxis.Title.Text = "Pixel";
-                pane.YAxis.Title.Text = "Intensity";
+                pane.YAxis.Title.Text = "Intensity, 10^" + (-1 * Math.Log10(CurveNormCoefficient)).ToString() + " counts";
                 LineItem SliceCurve = pane.AddCurve(CurveName, pointlist, color, SymbolType.None);
                 SliceCurve.Line.IsVisible = true;
                 // Update axis
@@ -155,7 +164,7 @@ namespace CamImageProcessing.NET
             xl.Clear();
             yl.Clear();
             pp.Clear();
-            List<double> yFit = new List<double>(SliceMath.FitPoly((int)FitPolyOrder_numericUpDown.Value));
+            List<double> yFit = new List<double>(SliceMath.Poly(SliceMath.Xlist.ToArray(), SliceMath.FitPoly((int)FitPolyOrder_numericUpDown.Value)));
             AddSliceProfile(yFit, Xshift, Xscale, name, Color.Black);
             // Display style
             LineItem myFit = (LineItem)pane.CurveList.Last();
@@ -203,7 +212,7 @@ namespace CamImageProcessing.NET
                 string nameFit = pane.CurveList.ElementAt(CurveNumber).Label.Text + "-poly" + FitPolyOrder_numericUpDown.Value.ToString();
                 ProfileMath SliceMath = new ProfileMath(xl, yl, nameFit);
                 // Fit PolyN and create a new curve
-                List<double> yFit = new List<double>(SliceMath.FitPoly((int)FitPolyOrder_numericUpDown.Value));
+                List<double> yFit = new List<double>(SliceMath.Poly(SliceMath.Xlist.ToArray(), SliceMath.FitPoly((int)FitPolyOrder_numericUpDown.Value)));
                 double Xleft = SliceMath.ZeroLeft();
                 double Xright = SliceMath.ZeroRight();
                 double Xscale = xl.ElementAt(1) - xl.ElementAt(0);
@@ -214,6 +223,9 @@ namespace CamImageProcessing.NET
                 Console.WriteLine("AbelInversion: source x-range: {0} .. {1}, extended range: {2} .. {3}", SliceMath.Xlist.ElementAt(0), SliceMath.Xlist.Last(), Xleft, Xright);
                 // Test: derivative of polyN
                 List<double> polyDer = new List<double>(SliceMath.PolyDerivative(SliceMath.FitPolyCoeff.ToArray()));
+                for (int i = 0; i < polyDer.Count; i++)
+                    Console.WriteLine("Coeff. polyN[{0}] = {1}, dpolyN[{2}] = {3}", i, SliceMath.FitPolyCoeff.ElementAt(i), i, polyDer.ElementAt(i));
+                Console.WriteLine("Coeff. polyN[{0}] = {1}", SliceMath.FitPolyCoeff.Count - 1, SliceMath.FitPolyCoeff.Last());
                 List<double> yDer = new List<double>(SliceMath.Poly(SliceMath.Xlist.ToArray(), polyDer.ToArray()));
                 double dYmax = yDer.Max();
                 for (int i = 0; i < yDer.Count; i++)

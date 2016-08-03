@@ -135,6 +135,13 @@ namespace CamImageProcessing.NET
             Color.Red });
             SliceColor_comboBox.SelectedIndex = 0;
 
+            // Field of view input: focal plane object size in mm
+            // EO lens L=1200: FOV = 410x340mm
+            FOV_X_numericUpDown.Maximum = 1000;
+            FOV_X_numericUpDown.Value = 410;
+            FOV_Y_numericUpDown.Maximum = 1000;
+            FOV_Y_numericUpDown.Value = 340;
+
             // Create a form for graphics
             GraphForm1 = new Graphics1();
             GraphForm1.Show();
@@ -498,7 +505,7 @@ namespace CamImageProcessing.NET
                 SliceColorList.Add(col);
 
                 SliceCount_label.Text = "Slice count: " + SliceList.Count.ToString();
-                GraphForm1.AddSliceProfile(SliceList.Last().AverageCols(), 0, 1, name, col);
+                GraphForm1.AddSliceProfile(SliceList.Last().AverageCols(), 0, 1, name, col, true);
             }
             else if (HorV_slice_comboBox.SelectedIndex == 1) // Horizontal
             {
@@ -549,6 +556,26 @@ namespace CamImageProcessing.NET
             SliceColorList.Clear();
 
             SliceCount_label.Text = "Slice count: " + SliceList.Count.ToString();
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void FOV_X_numericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void FOV_Y_numericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
