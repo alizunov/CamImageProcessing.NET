@@ -39,7 +39,7 @@ namespace CamImageProcessing.NET
         /// 0: LINEAR: p2 = 0
         /// 1,2: parabola branches up or down
         /// </summary>
-        public enum ApproximationOusideXrange : byte { LINEAR=0, PARABOLIC_POSITIVE=1, PARABOLIC_NEGATIVE=2 };
+        public enum ApproximationMethodOusideXrange : byte { LINEAR=0, PARABOLIC_POSITIVE=1, PARABOLIC_NEGATIVE=2 };
 
         // *** Methods ***
         /// <summary>
@@ -112,39 +112,31 @@ namespace CamImageProcessing.NET
 
         /// <summary>
         /// This method uses poly2 = p0 + p1*x + p2*x^2 used to lock an extended x-range between left/right zero crossing and input x-range.
+        /// Boundary conditions: equality of functions and 1st derivatives.
         /// Method returns the array of poly2 coefficients for a right side if arg=RIGHT and for a left side if arg=LEFT
         /// </summary>
-        public double[] GetLockFunction(ApproximationDirection dir)
-        {
-            return null;
-        }
-        /// <summary>
-        /// Gets LEFT point of "zero intersection". The polyN is continued by f = p0 + p1*x + p2*x^2 (poly2) with coefficients depending on the enum argument.
-        /// Boundary conditions: (1) PolyN(x_b) = f(x_b); (2) d/dx(PolyN(x_b)) = df/dx(x_b)
-        /// </summary>
-        public double ZeroLeft(ApproximationOusideXrange method)
+        public double[] GetLockFunction(ApproximationDirection dir, ApproximationMethodOusideXrange method)
         {
             // If there are no polyN coeff., return 0
             if (FitPolyCoeff.Count == 0)
-                return 0;
+                return null;
 
-            double x0 = Xlist.ElementAt(0);
-            double dx = Xlist.ElementAt(1) - Xlist.ElementAt(0);
+            double x0 = (dir == ApproximationDirection.LEFT) ? Xlist.ElementAt(0) : Xlist.Last();
             double[] p = { 0, 0, 0 };
-            Console.WriteLine("ZeroLeft: fit approximation - {0}", method);
+            //Console.WriteLine("ZeroLeft: fit approximation - {0}", method);
             switch (method)
             {
-                case ApproximationOusideXrange.LINEAR:
+                case ApproximationMethodOusideXrange.LINEAR:
                     p[2] = 0;
                     p[1] = Poly(x0, PolyDerivative(FitPolyCoeff.ToArray()));
                     p[0] = Poly(x0, FitPolyCoeff.ToArray()) - p[1] * x0;
                     break;
-                case ApproximationOusideXrange.PARABOLIC_NEGATIVE:
+                case ApproximationMethodOusideXrange.PARABOLIC_NEGATIVE:
                     p[1] = 0;
                     p[2] = Poly(x0, PolyDerivative(FitPolyCoeff.ToArray())) / (2 * x0);
                     p[0] = Poly(x0, FitPolyCoeff.ToArray()) - p[2] * x0 * x0;
                     break;
-                case ApproximationOusideXrange.PARABOLIC_POSITIVE:
+                case ApproximationMethodOusideXrange.PARABOLIC_POSITIVE:
                     double xc = x0 - 2 * Poly(x0, FitPolyCoeff.ToArray()) / Poly(x0, PolyDerivative(FitPolyCoeff.ToArray()));
                     double a = 0.25 * Math.Pow(Poly(x0, PolyDerivative(FitPolyCoeff.ToArray())), 2) / Poly(x0, FitPolyCoeff.ToArray());
                     p[0] = a * xc * xc;
@@ -154,27 +146,44 @@ namespace CamImageProcessing.NET
                 default:
                     break;
             }
-            Tuple<System.Numerics.Complex, System.Numerics.Complex> C_roots = FindRoots.Quadratic(p[0], p[1], p[2]);
-
-            return 0;
+            return p;
         }
-
         /// <summary>
-        /// Gets RIGHT point of "zero intersection". The polyN is continued by f = p0 + p1*x + p2*x^2 (poly2) with coefficients depending on the enum argument.
-        /// Boundary conditions: (1) PolyN(x_b) = f(x_b); (2) d/dx(PolyN(x_b)) = df/dx(x_b)
+        /// Calculates point of zero intersection by solving quadratic equation (Math.NET findRoots).
         /// </summary>
-        public double ZeroRight(ApproximationOusideXrange method)
+        public double ZeroCrossing(double[] p, ApproximationDirection dir)
         {
-            // If there are no polyN coeff., return 0
-            if (FitPolyCoeff.Count == 0)
-                return 0;
+            double zc = 0;
+            try
+            {
+                Tuple<System.Numerics.Complex, System.Numerics.Complex> C_roots = FindRoots.Quadratic(p[0], p[1], p[2]);
+                if (C_roots.Item1.Imaginary != 0 || C_roots.Item2.Imaginary != 0)   // Error
+                {
+                    Console.WriteLine("FindRoots: roots are complex, check polynom coefficients.");
+                    zc = 0;
+                }
+                else if (dir == ApproximationDirection.LEFT && C_roots.Item1.Real > 0 && C_roots.Item2.Real > 0)    // Error
+                {
+                    Console.WriteLine("FindRoots: solving for left (negative) zero crossing, but both roots are positive: {0}, {1}.", C_roots.Item1.Real, C_roots.Item2.Real);
+                    zc = 0;
+                }
+                else if (dir == ApproximationDirection.RIGHT && C_roots.Item1.Real < 0 && C_roots.Item2.Real < 0)   // Error
+                {
+                    Console.WriteLine("FindRoots: solving for right (positive) zero crossing, but both roots are negative: {0}, {1}.", C_roots.Item1.Real, C_roots.Item2.Real);
+                    zc = 0;
+                }
+                else if (dir == ApproximationDirection.LEFT)    // Ok
+                    zc = (C_roots.Item1.Real < 0) ? C_roots.Item1.Real : C_roots.Item2.Real;
+                else if (dir == ApproximationDirection.RIGHT)
+                    zc = (C_roots.Item1.Real > 0) ? C_roots.Item1.Real : C_roots.Item2.Real;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("FindRoots: Error: could not calculate." + ex.Message);
+            }
 
-            double x0 = Xlist.Last();
-            double dx = Xlist.ElementAt(1) - Xlist.ElementAt(0);
-            double a = Poly(x0, PolyDerivative(FitPolyCoeff.ToArray())) / (2 * x0);
-            double c = Poly(x0, FitPolyCoeff.ToArray()) - a * x0 * x0;
-            Console.WriteLine("ZeroRight: fit approximation f = ax^2+c : a = {0}, c = {1}, d/dx(polyN)(x0) = {2}", a, c, Poly(x0, PolyDerivative(FitPolyCoeff.ToArray())));
-            return dx * Math.Floor(Math.Sqrt(Math.Abs(c / a)) / dx);
+
+            return zc;
         }
 
         /// <summary>
@@ -238,8 +247,28 @@ namespace CamImageProcessing.NET
         /// 4. Returns target function g[] in the extended range xExt[].
         /// WARNING: call FitPoly() method before this method !
         /// </summary>
-        public double[] AbelInversionPoly()
+        public double[] AbelInversionPoly(string meth)
         {
+            ApproximationMethodOusideXrange method;
+            switch (meth)
+            {
+                case "Linear":
+                    method = ApproximationMethodOusideXrange.LINEAR;
+                    break;
+                case "Quad. positive":
+                    method = ApproximationMethodOusideXrange.PARABOLIC_POSITIVE;
+                    break;
+                case "Quad negative":
+                    method = ApproximationMethodOusideXrange.PARABOLIC_NEGATIVE;
+                    break;
+                default:
+                    Console.WriteLine("AbelInversion: Error: could not recognize lock method: " + meth + ", will use quad. positive");
+                    break;
+            }
+            // Lock function (poly2) for left side
+            double[] p2left = { 0, 0, 0 };
+            // Lock function (poly2) for right side
+            double[] p2right = { 0, 0, 0 };
             double XleftLimit = ZeroLeft();
             double XrightLimit = ZeroRight();
             double dx = Xlist.ElementAt(1) - Xlist.ElementAt(0);

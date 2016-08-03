@@ -34,10 +34,11 @@
             this.CurveNumber_numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.RemoveCurve_button = new System.Windows.Forms.Button();
             this.ProcessSlice_groupBox = new System.Windows.Forms.GroupBox();
+            this.Abel_button = new System.Windows.Forms.Button();
             this.FitPolyOrder_numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.ActiveSlice_numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.FitSlice_button = new System.Windows.Forms.Button();
-            this.Abel_button = new System.Windows.Forms.Button();
+            this.ApproxMethodOutside_comboBox = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.CurveNumber_numericUpDown)).BeginInit();
             this.ProcessSlice_groupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FitPolyOrder_numericUpDown)).BeginInit();
@@ -90,6 +91,7 @@
             // 
             // ProcessSlice_groupBox
             // 
+            this.ProcessSlice_groupBox.Controls.Add(this.ApproxMethodOutside_comboBox);
             this.ProcessSlice_groupBox.Controls.Add(this.Abel_button);
             this.ProcessSlice_groupBox.Controls.Add(this.FitPolyOrder_numericUpDown);
             this.ProcessSlice_groupBox.Controls.Add(this.ActiveSlice_numericUpDown);
@@ -101,6 +103,16 @@
             this.ProcessSlice_groupBox.TabStop = false;
             this.ProcessSlice_groupBox.Text = "Process";
             this.ProcessSlice_groupBox.Enter += new System.EventHandler(this.ProcessSlice_groupBox_Enter);
+            // 
+            // Abel_button
+            // 
+            this.Abel_button.Location = new System.Drawing.Point(194, 20);
+            this.Abel_button.Name = "Abel_button";
+            this.Abel_button.Size = new System.Drawing.Size(94, 23);
+            this.Abel_button.TabIndex = 3;
+            this.Abel_button.Text = "Abel inversion";
+            this.Abel_button.UseVisualStyleBackColor = true;
+            this.Abel_button.Click += new System.EventHandler(this.Abel_button_Click);
             // 
             // FitPolyOrder_numericUpDown
             // 
@@ -128,15 +140,15 @@
             this.FitSlice_button.UseVisualStyleBackColor = true;
             this.FitSlice_button.Click += new System.EventHandler(this.FitSlice_button_Click);
             // 
-            // Abel_button
+            // ApproxMethodOutside_comboBox
             // 
-            this.Abel_button.Location = new System.Drawing.Point(194, 20);
-            this.Abel_button.Name = "Abel_button";
-            this.Abel_button.Size = new System.Drawing.Size(94, 23);
-            this.Abel_button.TabIndex = 3;
-            this.Abel_button.Text = "Abel inversion";
-            this.Abel_button.UseVisualStyleBackColor = true;
-            this.Abel_button.Click += new System.EventHandler(this.Abel_button_Click);
+            this.ApproxMethodOutside_comboBox.FormattingEnabled = true;
+            this.ApproxMethodOutside_comboBox.Location = new System.Drawing.Point(295, 21);
+            this.ApproxMethodOutside_comboBox.Name = "ApproxMethodOutside_comboBox";
+            this.ApproxMethodOutside_comboBox.Size = new System.Drawing.Size(119, 21);
+            this.ApproxMethodOutside_comboBox.TabIndex = 4;
+            this.ApproxMethodOutside_comboBox.Text = "Lock function";
+            this.ApproxMethodOutside_comboBox.SelectedIndexChanged += new System.EventHandler(this.ApproxMethodOutside_comboBox_SelectedIndexChanged);
             // 
             // Graphics1
             // 
@@ -170,5 +182,6 @@
         private System.Windows.Forms.NumericUpDown ActiveSlice_numericUpDown;
         private System.Windows.Forms.NumericUpDown FitPolyOrder_numericUpDown;
         private System.Windows.Forms.Button Abel_button;
+        private System.Windows.Forms.ComboBox ApproxMethodOutside_comboBox;
     }
 }

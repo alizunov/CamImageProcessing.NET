@@ -34,6 +34,11 @@ namespace CamImageProcessing.NET
             // Process slice groupbox
             ProcessSlice_groupBox.Enabled = false;
 
+            // Lock function combo
+            ApproxMethodOutside_comboBox.Items.AddRange(new object[] { "Linear",
+                "Quad. positive",
+                "Quad negative"});
+
         } // ctor
 
         // Methods 
@@ -253,6 +258,11 @@ namespace CamImageProcessing.NET
 
             ActiveSlice_numericUpDown.Maximum = pane.CurveList.Count - 1;
             CurveNumber_numericUpDown.Maximum = pane.CurveList.Count - 1;
+
+        }
+
+        private void ApproxMethodOutside_comboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
 
         }
     }
