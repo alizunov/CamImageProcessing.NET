@@ -143,7 +143,12 @@ namespace CamImageProcessing.NET
                     p[1] = -2 * a * xc;
                     p[2] = a;
                     break;
-                default:
+                default:    // PARABOLIC_POSITIVE
+                    double xc1 = x0 - 2 * Poly(x0, FitPolyCoeff.ToArray()) / Poly(x0, PolyDerivative(FitPolyCoeff.ToArray()));
+                    double a1 = 0.25 * Math.Pow(Poly(x0, PolyDerivative(FitPolyCoeff.ToArray())), 2) / Poly(x0, FitPolyCoeff.ToArray());
+                    p[0] = a1 * xc1 * xc1;
+                    p[1] = -2 * a1 * xc1;
+                    p[2] = a1;
                     break;
             }
             return p;
@@ -239,9 +244,11 @@ namespace CamImageProcessing.NET
 
         /// <summary>
         /// Abel inversion procedure:
-        /// 1. Gets x[] and y[] = polyN[]
+        /// 1. Uses data provided by the class
+        ///     - Xlist (input x array)
+        ///     - Coefficients of the fit polyN (not y-array itself)
         /// 2. Calculates extended xExt[] from left zero crossing to right
-        /// 3. Calculates the solution of the integral equation
+        /// 3. Calculates the solution of the integral equation with the _polyN_ fit function
         /// SEPARATELY FOR LEFT AND RIGHT PARTS of xExt[] (split point - middle of x[], which is the center of original data array)
         /// Assumes axial "half-symmetry" for both parts of the target function.
         /// 4. Returns target function g[] in the extended range xExt[].
@@ -263,31 +270,41 @@ namespace CamImageProcessing.NET
                     break;
                 default:
                     Console.WriteLine("AbelInversion: Error: could not recognize lock method: " + meth + ", will use quad. positive");
+                    method = ApproximationMethodOusideXrange.PARABOLIC_POSITIVE;
                     break;
             }
             // Lock function (poly2) for left side
             double[] p2left = { 0, 0, 0 };
             // Lock function (poly2) for right side
             double[] p2right = { 0, 0, 0 };
-            double XleftLimit = ZeroLeft();
-            double XrightLimit = ZeroRight();
+            p2left = GetLockFunction(ApproximationDirection.LEFT, method);
+            p2right = GetLockFunction(ApproximationDirection.RIGHT, method);
+            double XleftLimit = ZeroCrossing(p2left, ApproximationDirection.LEFT);
+            double XrightLimit = ZeroCrossing(p2right, ApproximationDirection.RIGHT);
             double dx = Xlist.ElementAt(1) - Xlist.ElementAt(0);
             // "Axis" of both parts: x = 0
             // Prepare extended x-array from left zero crossing to right
             List<double> Xext = new List<double>(XarrayExt(XleftLimit, XrightLimit));
+            // Round limits
+            XleftLimit = Xext.ElementAt(0);
+            XrightLimit = Xext.Last();
+            // Count points in all three parts
+            int Nleft = (int)((Xlist.ElementAt(0) - Xext.ElementAt(0)) / dx);
+            int Nmain = Xlist.Count;
+            int Nright = (int)((Xext.Last() - Xlist.Last()) / dx);
+            int separatorIndex = Xext.IndexOf(0);
             // Prepare two part x-arrays
-            List<double> XextLeft = new List<double>();
-            List<double> XextRight = new List<double>();
-            int ix = 0;
-            while (Xext.ElementAt(ix) < 0)
-            {
-                XextLeft.Add(Xext.ElementAt(ix++));
-            }
-            int separatorIndex = ix;
-            XextRight = XextRight.GetRange(separatorIndex, Xext.Count - separatorIndex);    // +1 ??
-            // Prepare arrays Y[] and dY/dX[] (polyN and its derivative) for left and right parts of the extended x-array
-            List<double> dYextLeft = new List<double>(Poly(XextLeft.ToArray(), PolyDerivative(FitPolyCoeff.ToArray())));
-            List<double> dYextRight = new List<double>(Poly(XextRight.ToArray(), PolyDerivative(FitPolyCoeff.ToArray())));
+            List<double> XextLeft = Xext.GetRange(0, separatorIndex);
+            List<double> XextRight = Xext.GetRange(separatorIndex, Xext.Count - separatorIndex);
+            // Prepare arrays dY/dX[] (Y - polyN and lock functions on wings) for left and right parts of the extended x-array
+            // Derivative of left lock function
+            List<double> dYextLeft = new List<double>(Poly(Xext.GetRange(0, Nleft).ToArray(), PolyDerivative(p2left)));
+            // + 1/2 central part
+            dYextLeft.AddRange(Poly(Xext.GetRange(Nleft, separatorIndex - Nleft).ToArray(), PolyDerivative(FitPolyCoeff.ToArray())));
+            // 1/2 central part
+            List<double> dYextRight = new List<double>(Poly(Xext.GetRange(separatorIndex, Nmain - separatorIndex).ToArray(), PolyDerivative(FitPolyCoeff.ToArray())));
+            // + derivative of right lock function
+            dYextRight.AddRange(Poly(Xext.GetRange(Nleft + Nmain, Nright).ToArray(), PolyDerivative(p2right)));
             // Lists of calculated semi-profiles (excited atom density in case of measurements of emission intensity
             List<double> nLeft = new List<double>();
             List<double> nRight = new List<double>();
@@ -335,6 +352,7 @@ namespace CamImageProcessing.NET
             double coeff = (nExt.Max() != 0) ? Ylist.Max() / nExt.Max() : 1;
             for (int i = 0; i < nExt.Count; i++)
                 nExt[i] *= coeff;
+
             return nExt.ToArray();
         }
 

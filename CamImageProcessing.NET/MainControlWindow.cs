@@ -505,7 +505,7 @@ namespace CamImageProcessing.NET
                 SliceColorList.Add(col);
 
                 SliceCount_label.Text = "Slice count: " + SliceList.Count.ToString();
-                GraphForm1.AddSliceProfile(SliceList.Last().AverageCols(), 0, 1, name, col, true);
+                GraphForm1.AddSliceProfile(SliceList.Last().AverageCols(), -slice.Ysize / 2, 1, name, col, true);
             }
             else if (HorV_slice_comboBox.SelectedIndex == 1) // Horizontal
             {

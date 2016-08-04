@@ -45,10 +45,10 @@ namespace CamImageProcessing.NET
         public void AddSliceProfile(List<double> SliceData, double Xshift, double Xscale, string name, Color color, bool toScale = false)   // X = Xshift + Xscale*i_point
         {
             // Obtain X- and Y-limits for a new curve
-            // Xshift input is not used. 
-            // *** x = 0 is the middle of x[] ***
-            double xmin = -0.5 * Xscale * SliceData.Count;
-            double xmax = 0.5 * Xscale * SliceData.Count;
+            // *** For a normal data array (not extended set): x = 0 is the middle of x[] ***
+            // Setting of a valid Xshift must be done on the calling side
+            double xmin = Xshift;
+            double xmax = xmin + Xscale * SliceData.Count;
             double ymin = 0;
             // Look at current curve count, calculate CurveNormCoefficient if no curves drawn so far
             if (pane.CurveList.Count == 0)
@@ -216,27 +216,41 @@ namespace CamImageProcessing.NET
                 // Create ProfileMath object
                 string nameFit = pane.CurveList.ElementAt(CurveNumber).Label.Text + "-poly" + FitPolyOrder_numericUpDown.Value.ToString();
                 ProfileMath SliceMath = new ProfileMath(xl, yl, nameFit);
-                // Fit PolyN and create a new curve
-                List<double> yFit = new List<double>(SliceMath.Poly(SliceMath.Xlist.ToArray(), SliceMath.FitPoly((int)FitPolyOrder_numericUpDown.Value)));
-                double Xleft = SliceMath.ZeroLeft();
-                double Xright = SliceMath.ZeroRight();
+                // Basic range fit
+                List<double> Yfit = new List<double>(SliceMath.Poly(SliceMath.Xlist.ToArray(), SliceMath.FitPoly((int)FitPolyOrder_numericUpDown.Value)));
+                double[] p2left = { 0, 0, 0 };
+                double[] p2right = { 0, 0, 0 };
+                p2left = SliceMath.GetLockFunction(ProfileMath.ApproximationDirection.LEFT, ProfileMath.ApproximationMethodOusideXrange.PARABOLIC_NEGATIVE);
+                p2right = SliceMath.GetLockFunction(ProfileMath.ApproximationDirection.RIGHT, ProfileMath.ApproximationMethodOusideXrange.PARABOLIC_NEGATIVE);
+                double Xleft = SliceMath.ZeroCrossing(p2left, ProfileMath.ApproximationDirection.LEFT);
+                double Xright = SliceMath.ZeroCrossing(p2right, ProfileMath.ApproximationDirection.RIGHT);
                 double Xscale = xl.ElementAt(1) - xl.ElementAt(0);
                 xl.Clear();
                 yl.Clear();
                 pp.Clear();
-                // Create a new curve in an extended x-range (from left zero crossing to right)
-                Console.WriteLine("AbelInversion: source x-range: {0} .. {1}, extended range: {2} .. {3}", SliceMath.Xlist.ElementAt(0), SliceMath.Xlist.Last(), Xleft, Xright);
-                // Test: derivative of polyN
-                List<double> polyDer = new List<double>(SliceMath.PolyDerivative(SliceMath.FitPolyCoeff.ToArray()));
-                for (int i = 0; i < polyDer.Count; i++)
-                    Console.WriteLine("Coeff. polyN[{0}] = {1}, dpolyN[{2}] = {3}", i, SliceMath.FitPolyCoeff.ElementAt(i), i, polyDer.ElementAt(i));
-                Console.WriteLine("Coeff. polyN[{0}] = {1}", SliceMath.FitPolyCoeff.Count - 1, SliceMath.FitPolyCoeff.Last());
-                List<double> yDer = new List<double>(SliceMath.Poly(SliceMath.Xlist.ToArray(), polyDer.ToArray()));
-                double dYmax = yDer.Max();
-                for (int i = 0; i < yDer.Count; i++)
-                    yDer[i] *= SliceMath.Ylist.Max() / dYmax;
-                // Test: scale derivative to fit ~ the same Y range
-                AddSliceProfile(yDer, SliceMath.Xlist.ElementAt(0), Xscale, nameFit, Color.DarkBlue);
+                List<double> Xext = new List<double>(SliceMath.XarrayExt(Xleft, Xright));
+                //int Nmain = SliceMath.Xlist.Count;
+                //int Nleft = (int)((SliceMath.Xlist.ElementAt(0) - Xext.ElementAt(0)) / Xscale);
+                //int Nright = (int)((Xext.Last() - SliceMath.Xlist.Last()) / Xscale);
+                //int Ntotal = Xext.Count;
+                //List<double> YfitExt = new List<double>();
+                //// Add left extension
+                //for (int i = 0; i < Nleft; i++)
+                //    YfitExt.Add(SliceMath.Poly(Xext.ElementAt(i), p2left));
+                //// Add main part
+                //YfitExt.AddRange(Yfit);
+                //// Add right extension
+                //for (int i = Nleft + Nmain; i < Ntotal; i++)
+                //    YfitExt.Add(SliceMath.Poly(Xext.ElementAt(i), p2right));
+                //// Create a new curve in an extended x-range (from left zero crossing to right)
+                //Console.WriteLine("AbelInversion: source x-range: {0} .. {1}, extended range: {2} .. {3} ({4} .. {5})", SliceMath.Xlist.ElementAt(0), SliceMath.Xlist.Last(), Xleft, Xright, Xext.ElementAt(0), Xext.Last());
+                //Console.WriteLine("Nleft = {0}, Nmain = {1}, Nright = {2}, sum = {3} (Ntotal = {4}).", Nleft, Nmain, Nright, Nleft + Nmain + Nright, Ntotal);
+
+                // Abel inversion of the smoothed profile given by the PolyN fit. Create a new curve for the solution.
+                //string LFinput = ApproxMethodOutside_comboBox.SelectedValue.ToString();
+                //MessageBox.Show("Lock function: " + LFinput, "", MessageBoxButtons.OK);
+                List<double> yAbel = new List<double>(SliceMath.AbelInversionPoly("Quad negative"));
+                AddSliceProfile(yAbel, Xext.ElementAt(0), Xscale, nameFit, Color.DarkBlue);
                 // Display style
                 LineItem myFit = (LineItem)pane.CurveList.Last();
                 myFit.Line.IsVisible = true;
@@ -246,8 +260,6 @@ namespace CamImageProcessing.NET
                 pane.CurveList.Move(index, -1);
                 // Update 
                 zedGraphControl1.Invalidate();
-                // Abel inversion of the smoothed profile given by the PolyN fit. Create a new curve for the solution.
-                //List<double> yAbel = new List<double>(SliceMath.AbelInversionPoly());
             }
             catch (Exception ex)
             {
