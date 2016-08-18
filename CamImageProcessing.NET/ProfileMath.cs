@@ -234,7 +234,7 @@ namespace CamImageProcessing.NET
         {
             double v = 0;
             // Check integration limits
-            if (N1 <= N0 || N1 >= Y.Length)
+            if (N0 < 0 || N1 <= N0 || N1 > Y.Length)
                 return 0;
 
             for (int i = N0; i < N1; i++)
@@ -293,16 +293,24 @@ namespace CamImageProcessing.NET
             int Nmain = Xlist.Count;
             int Nright = (int)((Xext.Last() - Xlist.Last()) / dx);
             int separatorIndex = Xext.IndexOf(0);
+            // Check all sub-division margins
+            Console.WriteLine("Abel: main x-array length: {0}, " +
+                        "ext x-array length: {1}, " +
+                        "separator index: {2}, " +
+                        "left wing length: {3}, " +
+                        "right wing length: {4}",
+                        Xlist.Count, Xext.Count, separatorIndex, Nleft, Nright);
             // Prepare two part x-arrays
             List<double> XextLeft = Xext.GetRange(0, separatorIndex);
             List<double> XextRight = Xext.GetRange(separatorIndex, Xext.Count - separatorIndex);
+            Console.WriteLine("Abel: ext. x-array length left: {0}, right: {1}.", XextLeft.Count, XextRight.Count);
             // Prepare arrays dY/dX[] (Y - polyN and lock functions on wings) for left and right parts of the extended x-array
             // Derivative of left lock function
             List<double> dYextLeft = new List<double>(Poly(Xext.GetRange(0, Nleft).ToArray(), PolyDerivative(p2left)));
-            // + 1/2 central part
+            // + 1/2 central part (to x=0)
             dYextLeft.AddRange(Poly(Xext.GetRange(Nleft, separatorIndex - Nleft).ToArray(), PolyDerivative(FitPolyCoeff.ToArray())));
-            // 1/2 central part
-            List<double> dYextRight = new List<double>(Poly(Xext.GetRange(separatorIndex, Nmain - separatorIndex).ToArray(), PolyDerivative(FitPolyCoeff.ToArray())));
+            // 1/2 central part (from x=0)
+            List<double> dYextRight = new List<double>(Poly(Xext.GetRange(separatorIndex, Nleft + Nmain - separatorIndex).ToArray(), PolyDerivative(FitPolyCoeff.ToArray())));
             // + derivative of right lock function
             dYextRight.AddRange(Poly(Xext.GetRange(Nleft + Nmain, Nright).ToArray(), PolyDerivative(p2right)));
             // Lists of calculated semi-profiles (excited atom density in case of measurements of emission intensity
@@ -312,38 +320,44 @@ namespace CamImageProcessing.NET
             List<double> fInt = new List<double>();
 
             // ## Calculation of the left part ##
-            // Mirror left side to the positive half-plane
-            // That means index = MaxCount - i
-            for (double Rleft = 0; Rleft > XleftLimit; Rleft -= dx)
+            // First reverse order of elements in all left-side arrays
+            XextLeft.Reverse();
+            dYextLeft.Reverse();
+            Console.WriteLine("Abel: starting calculation, dY/dX left array size: {0}, min: {1}, max: {2}.", dYextLeft.Count, dYextLeft.Min(), dYextLeft.Max());
+            // Now we can count index from 0
+            for (int Lindex=0; Lindex<XextLeft.Count; Lindex++)
             {
-                int Index = XextLeft.Count - (int)Math.Abs(Rleft / dx);
-                // I'm not sure about element-wise operations with arrays, so lets do it by hands
-                for (double rl = Rleft; rl > XleftLimit; rl -= dx)
+                double r = XextLeft.ElementAt(Lindex);
+                // 1. Prepare the function (list of a variable size depending on Rcurrent) under Abel integral for the left side: fInt(Rcurrent)
+                fInt.Clear();
+                fInt.Add(0);    // x = Rcurrent : remove singularity at (x^2 - r^2)^-0.5
+                for (int index = Lindex + 1; index < XextLeft.Count; index++)
                 {
-                    int index = XextLeft.Count - (int)Math.Abs((rl / dx));
-                    if (rl == Rleft)
-                        fInt.Add(0);
-                    else
-                        fInt.Add(dYextLeft.ElementAt(index) / Math.Sqrt(rl * rl - Rleft * Rleft));
+                    double y = XextLeft.ElementAt(index);
+                    fInt.Add(dYextLeft.ElementAt(index) / Math.Sqrt(y * y - r * r));
                 }
-                nLeft.Add( DefiniteIntegral(fInt.ToArray(), Index, XextLeft.Count, dx) );
+                // 2. Calculate integral from Lindex to the left limit (reversed)
+                nLeft.Add(DefiniteIntegral(fInt.ToArray(), 0, fInt.Count, dx));
             }
+            Console.WriteLine("Abel: continuing calculation, dY/dX right array size: {0}, min: {1}, max: {2}.", dYextRight.Count, dYextRight.Min(), dYextRight.Max());
             // ## Calculation of the right part ##
-            fInt.Clear();
-            for (double Rright = 0; Rright < XrightLimit; Rright += dx)
+            for (int Rindex = 0; Rindex < XextRight.Count; Rindex++)
             {
-                int Index = (int)(Rright / dx);
-                for (double rr = Rright; rr < XrightLimit; rr += dx)
+                double r = XextRight.ElementAt(Rindex);
+                // 1. Prepare the function (list of a variable size depending on Rcurrent) under Abel integral for the left side: fInt(Rcurrent)
+                fInt.Clear();
+                fInt.Add(0);    // x = Rcurrent : remove singularity at (x^2 - r^2)^-0.5
+                for (int index = Rindex + 1; index < XextRight.Count; index++)
                 {
-                    int index = (int)(rr / dx);
-                    if (rr == Rright)
-                        fInt.Add(0);
-                    else
-                        fInt.Add(dYextRight.ElementAt(index) / Math.Sqrt(rr * rr - Rright * Rright));
-                    nRight.Add(DefiniteIntegral(fInt.ToArray(), Index, XextRight.Count, dx));
+                    double y = XextRight.ElementAt(index);
+                    fInt.Add(dYextRight.ElementAt(index) / Math.Sqrt(y * y - r * r));
                 }
+                // 2. Calculate integral from Lindex to the left limit (reversed)
+                nRight.Add(-1*DefiniteIntegral(fInt.ToArray(), 0, fInt.Count, dx));
             }
-            // Merge both parts into a single list
+            Console.WriteLine("Abel: right side calculated.");
+            // Merge both parts into a single list :
+            // Reverse order of elements in nLeft list
             nLeft.Reverse();
             List<double> nExt = new List<double>(nLeft.Count + nRight.Count);
             nExt.AddRange(nLeft);

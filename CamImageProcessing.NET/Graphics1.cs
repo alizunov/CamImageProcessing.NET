@@ -266,8 +266,6 @@ namespace CamImageProcessing.NET
                 Console.WriteLine("Error: Could not make Abel inversion for curve #{0}. Original error: " + ex.Message, ActiveSlice_numericUpDown.Value);
             }
 
-
-
             ActiveSlice_numericUpDown.Maximum = pane.CurveList.Count - 1;
             CurveNumber_numericUpDown.Maximum = pane.CurveList.Count - 1;
 
