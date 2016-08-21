@@ -213,44 +213,22 @@ namespace CamImageProcessing.NET
                     xl.Add(pp.ElementAt(i).X);
                     yl.Add(pp.ElementAt(i).Y);
                 }
-                // Create ProfileMath object
+                double Xscale = xl.ElementAt(1) - xl.ElementAt(0);
                 string nameFit = pane.CurveList.ElementAt(CurveNumber).Label.Text + "-poly" + FitPolyOrder_numericUpDown.Value.ToString();
+                string nameExtFit = nameFit + "-ext";
+                // Create ProfileMath object
                 ProfileMath SliceMath = new ProfileMath(xl, yl, nameFit);
                 // Basic range fit
                 List<double> Yfit = new List<double>(SliceMath.Poly(SliceMath.Xlist.ToArray(), SliceMath.FitPoly((int)FitPolyOrder_numericUpDown.Value)));
-                double[] p2left = { 0, 0, 0 };
-                double[] p2right = { 0, 0, 0 };
-                p2left = SliceMath.GetLockFunction(ProfileMath.ApproximationDirection.LEFT, ProfileMath.ApproximationMethodOusideXrange.PARABOLIC_NEGATIVE);
-                p2right = SliceMath.GetLockFunction(ProfileMath.ApproximationDirection.RIGHT, ProfileMath.ApproximationMethodOusideXrange.PARABOLIC_NEGATIVE);
-                double Xleft = SliceMath.ZeroCrossing(p2left, ProfileMath.ApproximationDirection.LEFT);
-                double Xright = SliceMath.ZeroCrossing(p2right, ProfileMath.ApproximationDirection.RIGHT);
-                double Xscale = xl.ElementAt(1) - xl.ElementAt(0);
                 xl.Clear();
                 yl.Clear();
                 pp.Clear();
-                List<double> Xext = new List<double>(SliceMath.XarrayExt(Xleft, Xright));
-                //int Nmain = SliceMath.Xlist.Count;
-                //int Nleft = (int)((SliceMath.Xlist.ElementAt(0) - Xext.ElementAt(0)) / Xscale);
-                //int Nright = (int)((Xext.Last() - SliceMath.Xlist.Last()) / Xscale);
-                //int Ntotal = Xext.Count;
-                //List<double> YfitExt = new List<double>();
-                //// Add left extension
-                //for (int i = 0; i < Nleft; i++)
-                //    YfitExt.Add(SliceMath.Poly(Xext.ElementAt(i), p2left));
-                //// Add main part
-                //YfitExt.AddRange(Yfit);
-                //// Add right extension
-                //for (int i = Nleft + Nmain; i < Ntotal; i++)
-                //    YfitExt.Add(SliceMath.Poly(Xext.ElementAt(i), p2right));
-                //// Create a new curve in an extended x-range (from left zero crossing to right)
-                //Console.WriteLine("AbelInversion: source x-range: {0} .. {1}, extended range: {2} .. {3} ({4} .. {5})", SliceMath.Xlist.ElementAt(0), SliceMath.Xlist.Last(), Xleft, Xright, Xext.ElementAt(0), Xext.Last());
-                //Console.WriteLine("Nleft = {0}, Nmain = {1}, Nright = {2}, sum = {3} (Ntotal = {4}).", Nleft, Nmain, Nright, Nleft + Nmain + Nright, Ntotal);
 
-                // Abel inversion of the smoothed profile given by the PolyN fit. Create a new curve for the solution.
-                //string LFinput = ApproxMethodOutside_comboBox.SelectedValue.ToString();
-                //MessageBox.Show("Lock function: " + LFinput, "", MessageBoxButtons.OK);
-                List<double> yAbel = new List<double>(SliceMath.AbelInversionPoly("Quad negative"));
-                AddSliceProfile(yAbel, Xext.ElementAt(0), Xscale, nameFit, Color.DarkBlue);
+                List<double> yAbel = new List<double>(SliceMath.AbelInversionPoly(SliceMath.GetApproximationMethod(ApproxMethodOutside_comboBox.SelectedItem.ToString())));
+                // Extended range fit curve with left/right wing lock functions defined in the Abel inversion method
+                List<double> Yext = new List<double>(SliceMath.BuildFitExtended());
+                // Slice for Abel inversion profile
+                AddSliceProfile(yAbel, SliceMath.Xext.ElementAt(0), Xscale, nameFit, ActiveSlice.Color);
                 // Display style
                 LineItem myFit = (LineItem)pane.CurveList.Last();
                 myFit.Line.IsVisible = true;
@@ -258,6 +236,16 @@ namespace CamImageProcessing.NET
                 // Move fit curve one position higher in the CurveList
                 int index = pane.CurveList.IndexOf(nameFit);
                 pane.CurveList.Move(index, -1);
+
+                // Slice for extended fit
+                AddSliceProfile(Yext, SliceMath.Xext.ElementAt(0), Xscale, nameExtFit, Color.DarkBlue);
+                // Display style
+                index = pane.CurveList.IndexOf(nameExtFit);
+                LineItem myExtFit = (LineItem)pane.CurveList.ElementAt(index);
+                myExtFit.Line.Width = 2;
+                // Move fit curve one position higher in the CurveList
+                //pane.CurveList.Move(index, -1);
+
                 // Update 
                 zedGraphControl1.Invalidate();
             }
@@ -273,7 +261,12 @@ namespace CamImageProcessing.NET
 
         private void ApproxMethodOutside_comboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            //MessageBox.Show("Selected method:" + ApproxMethodOutside_comboBox.SelectedItem, "", MessageBoxButtons.OK);
+        }
 
+        private void AlignParts_checkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            //MessageBox.Show("State:" + AlignParts_checkBox.CheckState, "", MessageBoxButtons.OK);
         }
     }
 }

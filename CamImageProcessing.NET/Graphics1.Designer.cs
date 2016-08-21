@@ -34,11 +34,12 @@
             this.CurveNumber_numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.RemoveCurve_button = new System.Windows.Forms.Button();
             this.ProcessSlice_groupBox = new System.Windows.Forms.GroupBox();
+            this.ApproxMethodOutside_comboBox = new System.Windows.Forms.ComboBox();
             this.Abel_button = new System.Windows.Forms.Button();
             this.FitPolyOrder_numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.ActiveSlice_numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.FitSlice_button = new System.Windows.Forms.Button();
-            this.ApproxMethodOutside_comboBox = new System.Windows.Forms.ComboBox();
+            this.AlignParts_checkBox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.CurveNumber_numericUpDown)).BeginInit();
             this.ProcessSlice_groupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FitPolyOrder_numericUpDown)).BeginInit();
@@ -91,6 +92,7 @@
             // 
             // ProcessSlice_groupBox
             // 
+            this.ProcessSlice_groupBox.Controls.Add(this.AlignParts_checkBox);
             this.ProcessSlice_groupBox.Controls.Add(this.ApproxMethodOutside_comboBox);
             this.ProcessSlice_groupBox.Controls.Add(this.Abel_button);
             this.ProcessSlice_groupBox.Controls.Add(this.FitPolyOrder_numericUpDown);
@@ -98,11 +100,21 @@
             this.ProcessSlice_groupBox.Controls.Add(this.FitSlice_button);
             this.ProcessSlice_groupBox.Location = new System.Drawing.Point(238, 536);
             this.ProcessSlice_groupBox.Name = "ProcessSlice_groupBox";
-            this.ProcessSlice_groupBox.Size = new System.Drawing.Size(420, 60);
+            this.ProcessSlice_groupBox.Size = new System.Drawing.Size(420, 75);
             this.ProcessSlice_groupBox.TabIndex = 4;
             this.ProcessSlice_groupBox.TabStop = false;
             this.ProcessSlice_groupBox.Text = "Process";
             this.ProcessSlice_groupBox.Enter += new System.EventHandler(this.ProcessSlice_groupBox_Enter);
+            // 
+            // ApproxMethodOutside_comboBox
+            // 
+            this.ApproxMethodOutside_comboBox.FormattingEnabled = true;
+            this.ApproxMethodOutside_comboBox.Location = new System.Drawing.Point(295, 21);
+            this.ApproxMethodOutside_comboBox.Name = "ApproxMethodOutside_comboBox";
+            this.ApproxMethodOutside_comboBox.Size = new System.Drawing.Size(119, 21);
+            this.ApproxMethodOutside_comboBox.TabIndex = 4;
+            this.ApproxMethodOutside_comboBox.Text = "Lock function";
+            this.ApproxMethodOutside_comboBox.SelectedIndexChanged += new System.EventHandler(this.ApproxMethodOutside_comboBox_SelectedIndexChanged);
             // 
             // Abel_button
             // 
@@ -140,21 +152,22 @@
             this.FitSlice_button.UseVisualStyleBackColor = true;
             this.FitSlice_button.Click += new System.EventHandler(this.FitSlice_button_Click);
             // 
-            // ApproxMethodOutside_comboBox
+            // AlignParts_checkBox
             // 
-            this.ApproxMethodOutside_comboBox.FormattingEnabled = true;
-            this.ApproxMethodOutside_comboBox.Location = new System.Drawing.Point(295, 21);
-            this.ApproxMethodOutside_comboBox.Name = "ApproxMethodOutside_comboBox";
-            this.ApproxMethodOutside_comboBox.Size = new System.Drawing.Size(119, 21);
-            this.ApproxMethodOutside_comboBox.TabIndex = 4;
-            this.ApproxMethodOutside_comboBox.Text = "Lock function";
-            this.ApproxMethodOutside_comboBox.SelectedIndexChanged += new System.EventHandler(this.ApproxMethodOutside_comboBox_SelectedIndexChanged);
+            this.AlignParts_checkBox.AutoSize = true;
+            this.AlignParts_checkBox.Location = new System.Drawing.Point(194, 49);
+            this.AlignParts_checkBox.Name = "AlignParts_checkBox";
+            this.AlignParts_checkBox.Size = new System.Drawing.Size(75, 17);
+            this.AlignParts_checkBox.TabIndex = 5;
+            this.AlignParts_checkBox.Text = "Align parts";
+            this.AlignParts_checkBox.UseVisualStyleBackColor = true;
+            this.AlignParts_checkBox.CheckedChanged += new System.EventHandler(this.AlignParts_checkBox_CheckedChanged);
             // 
             // Graphics1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(670, 608);
+            this.ClientSize = new System.Drawing.Size(670, 614);
             this.Controls.Add(this.ProcessSlice_groupBox);
             this.Controls.Add(this.RemoveCurve_button);
             this.Controls.Add(this.CurveNumber_numericUpDown);
@@ -165,6 +178,7 @@
             this.Load += new System.EventHandler(this.Graphics1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.CurveNumber_numericUpDown)).EndInit();
             this.ProcessSlice_groupBox.ResumeLayout(false);
+            this.ProcessSlice_groupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FitPolyOrder_numericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ActiveSlice_numericUpDown)).EndInit();
             this.ResumeLayout(false);
@@ -183,5 +197,6 @@
         private System.Windows.Forms.NumericUpDown FitPolyOrder_numericUpDown;
         private System.Windows.Forms.Button Abel_button;
         private System.Windows.Forms.ComboBox ApproxMethodOutside_comboBox;
+        private System.Windows.Forms.CheckBox AlignParts_checkBox;
     }
 }

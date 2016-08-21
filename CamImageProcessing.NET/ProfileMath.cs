@@ -25,6 +25,24 @@ namespace CamImageProcessing.NET
         public List<double> Ylist
         { get; set; }
 
+        /// <summary>
+        /// Extended X-list (from left zero crossing to the right one). Created in the Abel inversion method.
+        /// </summary>
+        public List<double> Xext
+        { get; set; }
+
+        /// <summary>
+        /// Lock function coefficients for the left wing.
+        /// </summary>
+        public double[] p2left
+        { get; set; }
+
+        /// <summary>
+        /// Lock function coefficients for the left wing.
+        /// </summary>
+        public double[] p2right
+        { get; set; }
+
         public string ProfileName
         { get; set; }
 
@@ -56,8 +74,12 @@ namespace CamImageProcessing.NET
 
             Xlist = new List<double>(xx);
             Ylist = new List<double>(yy);
+            p2left = new double[] { 0, 0, 0 };
+            p2right = new double[] { 0, 0, 0 };
             Npoints = Xlist.Count;
             FitPolyCoeff = new List<double>();
+            // Empty list of the extended x-range
+            Xext = new List<double>();
         }
 
         /// <summary>
@@ -243,6 +265,34 @@ namespace CamImageProcessing.NET
         }
 
         /// <summary>
+        /// Parses string and returns the corresponding value of the ApproximationMethodOusideXrange enum.
+        /// </summary>
+        public ApproximationMethodOusideXrange GetApproximationMethod(string input)
+        {
+            ApproximationMethodOusideXrange method;
+            switch (input)
+            {
+                case "Linear":
+                    method = ApproximationMethodOusideXrange.LINEAR;
+                    Console.WriteLine("GetApproximationMethod: " + input + ", will use method {0}.", method);
+                    break;
+                case "Quad. positive":
+                    method = ApproximationMethodOusideXrange.PARABOLIC_POSITIVE;
+                    Console.WriteLine("GetApproximationMethod: " + input + ", will use method {0}.", method);
+                    break;
+                case "Quad negative":
+                    method = ApproximationMethodOusideXrange.PARABOLIC_NEGATIVE;
+                    Console.WriteLine("GetApproximationMethod: " + input + ", will use method {0}.", method);
+                    break;
+                default:
+                    Console.WriteLine("GetApproximationMethod: Error: could not recognize lock method: " + input + ", will use quad. positive");
+                    method = ApproximationMethodOusideXrange.PARABOLIC_POSITIVE;
+                    break;
+            }
+            return method;
+        }
+
+        /// <summary>
         /// Abel inversion procedure:
         /// 1. Uses data provided by the class
         ///     - Xlist (input x array)
@@ -254,37 +304,17 @@ namespace CamImageProcessing.NET
         /// 4. Returns target function g[] in the extended range xExt[].
         /// WARNING: call FitPoly() method before this method !
         /// </summary>
-        public double[] AbelInversionPoly(string meth)
+        public double[] AbelInversionPoly(ApproximationMethodOusideXrange method)
         {
-            ApproximationMethodOusideXrange method;
-            switch (meth)
-            {
-                case "Linear":
-                    method = ApproximationMethodOusideXrange.LINEAR;
-                    break;
-                case "Quad. positive":
-                    method = ApproximationMethodOusideXrange.PARABOLIC_POSITIVE;
-                    break;
-                case "Quad negative":
-                    method = ApproximationMethodOusideXrange.PARABOLIC_NEGATIVE;
-                    break;
-                default:
-                    Console.WriteLine("AbelInversion: Error: could not recognize lock method: " + meth + ", will use quad. positive");
-                    method = ApproximationMethodOusideXrange.PARABOLIC_POSITIVE;
-                    break;
-            }
-            // Lock function (poly2) for left side
-            double[] p2left = { 0, 0, 0 };
-            // Lock function (poly2) for right side
-            double[] p2right = { 0, 0, 0 };
             p2left = GetLockFunction(ApproximationDirection.LEFT, method);
             p2right = GetLockFunction(ApproximationDirection.RIGHT, method);
             double XleftLimit = ZeroCrossing(p2left, ApproximationDirection.LEFT);
             double XrightLimit = ZeroCrossing(p2right, ApproximationDirection.RIGHT);
             double dx = Xlist.ElementAt(1) - Xlist.ElementAt(0);
             // "Axis" of both parts: x = 0
-            // Prepare extended x-array from left zero crossing to right
-            List<double> Xext = new List<double>(XarrayExt(XleftLimit, XrightLimit));
+            // Fills extended x-array from left zero crossing to right
+            Xext.Clear();
+            Xext.AddRange(XarrayExt(XleftLimit, XrightLimit));
             // Round limits
             XleftLimit = Xext.ElementAt(0);
             XrightLimit = Xext.Last();
@@ -368,6 +398,27 @@ namespace CamImageProcessing.NET
                 nExt[i] *= coeff;
 
             return nExt.ToArray();
+        }
+
+        /// <summary>
+        /// Returnes PolyN fit curve in an extended x-range, which is assumed filled. Uses lock functions for left and right wings which must be calculated 
+        /// by the Abel inversion method previously.
+        /// </summary>
+        public double[] BuildFitExtended()
+        {
+            // Only one check: the Xext list size
+            if (Xext.Count == 0)
+                return null;
+            // Count points in all three parts
+            double dx = Xlist.ElementAt(1) - Xlist.ElementAt(0);
+            int Nleft = (int)((Xlist.ElementAt(0) - Xext.ElementAt(0)) / dx);
+            int Nmain = Xlist.Count;
+            int Nright = (int)((Xext.Last() - Xlist.Last()) / dx);
+            // Create extended Y-array
+            List<double> Yext = new List<double>(Poly(Xext.GetRange(0, Nleft).ToArray(), p2left));
+            Yext.AddRange(Ylist);
+            Yext.AddRange(Poly(Xext.GetRange(Nleft + Nmain, Nright).ToArray(), p2right));
+            return Yext.ToArray();
         }
 
 
