@@ -264,9 +264,14 @@ namespace CamImageProcessing.NET
             //MessageBox.Show("Selected method:" + ApproxMethodOutside_comboBox.SelectedItem, "", MessageBoxButtons.OK);
         }
 
-        private void AlignParts_checkBox_CheckedChanged(object sender, EventArgs e)
+        /// <summary>
+        /// "Save pane" button click handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SavePane_button_Click(object sender, EventArgs e)
         {
-            //MessageBox.Show("State:" + AlignParts_checkBox.CheckState, "", MessageBoxButtons.OK);
+            zedGraphControl1.SaveAsBitmap();
         }
     }
 }

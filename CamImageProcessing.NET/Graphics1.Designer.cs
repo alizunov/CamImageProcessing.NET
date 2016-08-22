@@ -39,7 +39,7 @@
             this.FitPolyOrder_numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.ActiveSlice_numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.FitSlice_button = new System.Windows.Forms.Button();
-            this.AlignParts_checkBox = new System.Windows.Forms.CheckBox();
+            this.SavePane_button = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.CurveNumber_numericUpDown)).BeginInit();
             this.ProcessSlice_groupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FitPolyOrder_numericUpDown)).BeginInit();
@@ -92,7 +92,6 @@
             // 
             // ProcessSlice_groupBox
             // 
-            this.ProcessSlice_groupBox.Controls.Add(this.AlignParts_checkBox);
             this.ProcessSlice_groupBox.Controls.Add(this.ApproxMethodOutside_comboBox);
             this.ProcessSlice_groupBox.Controls.Add(this.Abel_button);
             this.ProcessSlice_groupBox.Controls.Add(this.FitPolyOrder_numericUpDown);
@@ -152,22 +151,22 @@
             this.FitSlice_button.UseVisualStyleBackColor = true;
             this.FitSlice_button.Click += new System.EventHandler(this.FitSlice_button_Click);
             // 
-            // AlignParts_checkBox
+            // SavePane_button
             // 
-            this.AlignParts_checkBox.AutoSize = true;
-            this.AlignParts_checkBox.Location = new System.Drawing.Point(194, 49);
-            this.AlignParts_checkBox.Name = "AlignParts_checkBox";
-            this.AlignParts_checkBox.Size = new System.Drawing.Size(75, 17);
-            this.AlignParts_checkBox.TabIndex = 5;
-            this.AlignParts_checkBox.Text = "Align parts";
-            this.AlignParts_checkBox.UseVisualStyleBackColor = true;
-            this.AlignParts_checkBox.CheckedChanged += new System.EventHandler(this.AlignParts_checkBox_CheckedChanged);
+            this.SavePane_button.Location = new System.Drawing.Point(156, 565);
+            this.SavePane_button.Name = "SavePane_button";
+            this.SavePane_button.Size = new System.Drawing.Size(75, 23);
+            this.SavePane_button.TabIndex = 5;
+            this.SavePane_button.Text = "Save pane";
+            this.SavePane_button.UseVisualStyleBackColor = true;
+            this.SavePane_button.Click += new System.EventHandler(this.SavePane_button_Click);
             // 
             // Graphics1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(670, 614);
+            this.Controls.Add(this.SavePane_button);
             this.Controls.Add(this.ProcessSlice_groupBox);
             this.Controls.Add(this.RemoveCurve_button);
             this.Controls.Add(this.CurveNumber_numericUpDown);
@@ -178,7 +177,6 @@
             this.Load += new System.EventHandler(this.Graphics1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.CurveNumber_numericUpDown)).EndInit();
             this.ProcessSlice_groupBox.ResumeLayout(false);
-            this.ProcessSlice_groupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FitPolyOrder_numericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ActiveSlice_numericUpDown)).EndInit();
             this.ResumeLayout(false);
@@ -197,6 +195,6 @@
         private System.Windows.Forms.NumericUpDown FitPolyOrder_numericUpDown;
         private System.Windows.Forms.Button Abel_button;
         private System.Windows.Forms.ComboBox ApproxMethodOutside_comboBox;
-        private System.Windows.Forms.CheckBox AlignParts_checkBox;
+        private System.Windows.Forms.Button SavePane_button;
     }
 }
