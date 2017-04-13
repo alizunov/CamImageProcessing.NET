@@ -577,5 +577,10 @@ namespace CamImageProcessing.NET
         {
 
         }
+
+        private void FrameImage_button_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

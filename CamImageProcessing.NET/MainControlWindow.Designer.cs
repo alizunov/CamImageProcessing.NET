@@ -36,6 +36,10 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.FOV_Y_numericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.label5 = new System.Windows.Forms.Label();
+            this.FOV_X_numericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.label4 = new System.Windows.Forms.Label();
             this.SaveImages_button = new System.Windows.Forms.Button();
             this.ImageHisto_groupBox = new System.Windows.Forms.GroupBox();
             this.EqualizeHist_button = new System.Windows.Forms.Button();
@@ -61,19 +65,16 @@
             this.ResetButton = new System.Windows.Forms.Button();
             this.ApplyButton = new System.Windows.Forms.Button();
             this.ColorMapCombobox = new System.Windows.Forms.ComboBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.FOV_X_numericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.label5 = new System.Windows.Forms.Label();
-            this.FOV_Y_numericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.FrameImage_button = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.FOV_Y_numericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.FOV_X_numericUpDown)).BeginInit();
             this.ImageHisto_groupBox.SuspendLayout();
             this.Slice_groupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SliceMargin2_numericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.SliceMargin1_numericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.FOV_X_numericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.FOV_Y_numericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -165,6 +166,42 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Process Image";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
+            // 
+            // FOV_Y_numericUpDown
+            // 
+            this.FOV_Y_numericUpDown.Location = new System.Drawing.Point(57, 329);
+            this.FOV_Y_numericUpDown.Name = "FOV_Y_numericUpDown";
+            this.FOV_Y_numericUpDown.Size = new System.Drawing.Size(76, 20);
+            this.FOV_Y_numericUpDown.TabIndex = 18;
+            this.FOV_Y_numericUpDown.ValueChanged += new System.EventHandler(this.FOV_Y_numericUpDown_ValueChanged);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(13, 332);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(38, 13);
+            this.label5.TabIndex = 17;
+            this.label5.Text = "FOV-Y";
+            this.label5.Click += new System.EventHandler(this.label5_Click);
+            // 
+            // FOV_X_numericUpDown
+            // 
+            this.FOV_X_numericUpDown.Location = new System.Drawing.Point(58, 303);
+            this.FOV_X_numericUpDown.Name = "FOV_X_numericUpDown";
+            this.FOV_X_numericUpDown.Size = new System.Drawing.Size(75, 20);
+            this.FOV_X_numericUpDown.TabIndex = 16;
+            this.FOV_X_numericUpDown.ValueChanged += new System.EventHandler(this.FOV_X_numericUpDown_ValueChanged);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(13, 305);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(38, 13);
+            this.label4.TabIndex = 15;
+            this.label4.Text = "FOV-X";
+            this.label4.Click += new System.EventHandler(this.label4_Click);
             // 
             // SaveImages_button
             // 
@@ -418,47 +455,22 @@
             this.ColorMapCombobox.Text = "Color Map";
             this.ColorMapCombobox.SelectedIndexChanged += new System.EventHandler(this.ColorMapCombobox_SelectedIndexChanged);
             // 
-            // label4
+            // FrameImage_button
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(13, 305);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(38, 13);
-            this.label4.TabIndex = 15;
-            this.label4.Text = "FOV-X";
-            this.label4.Click += new System.EventHandler(this.label4_Click);
-            // 
-            // FOV_X_numericUpDown
-            // 
-            this.FOV_X_numericUpDown.Location = new System.Drawing.Point(58, 303);
-            this.FOV_X_numericUpDown.Name = "FOV_X_numericUpDown";
-            this.FOV_X_numericUpDown.Size = new System.Drawing.Size(75, 20);
-            this.FOV_X_numericUpDown.TabIndex = 16;
-            this.FOV_X_numericUpDown.ValueChanged += new System.EventHandler(this.FOV_X_numericUpDown_ValueChanged);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(13, 332);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(38, 13);
-            this.label5.TabIndex = 17;
-            this.label5.Text = "FOV-Y";
-            this.label5.Click += new System.EventHandler(this.label5_Click);
-            // 
-            // FOV_Y_numericUpDown
-            // 
-            this.FOV_Y_numericUpDown.Location = new System.Drawing.Point(57, 329);
-            this.FOV_Y_numericUpDown.Name = "FOV_Y_numericUpDown";
-            this.FOV_Y_numericUpDown.Size = new System.Drawing.Size(76, 20);
-            this.FOV_Y_numericUpDown.TabIndex = 18;
-            this.FOV_Y_numericUpDown.ValueChanged += new System.EventHandler(this.FOV_Y_numericUpDown_ValueChanged);
+            this.FrameImage_button.Location = new System.Drawing.Point(12, 439);
+            this.FrameImage_button.Name = "FrameImage_button";
+            this.FrameImage_button.Size = new System.Drawing.Size(114, 23);
+            this.FrameImage_button.TabIndex = 7;
+            this.FrameImage_button.Text = "Frame Image";
+            this.FrameImage_button.UseVisualStyleBackColor = true;
+            this.FrameImage_button.Click += new System.EventHandler(this.FrameImage_button_Click);
             // 
             // MainControlWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(754, 509);
+            this.Controls.Add(this.FrameImage_button);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.progressBar1);
@@ -470,6 +482,8 @@
             this.Text = "Control panel";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.FOV_Y_numericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.FOV_X_numericUpDown)).EndInit();
             this.ImageHisto_groupBox.ResumeLayout(false);
             this.Slice_groupBox.ResumeLayout(false);
             this.Slice_groupBox.PerformLayout();
@@ -477,8 +491,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.SliceMargin1_numericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.FOV_X_numericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.FOV_Y_numericUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -523,6 +535,7 @@
         private System.Windows.Forms.NumericUpDown FOV_X_numericUpDown;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.NumericUpDown FOV_Y_numericUpDown;
+        private System.Windows.Forms.Button FrameImage_button;
     }
 }
 

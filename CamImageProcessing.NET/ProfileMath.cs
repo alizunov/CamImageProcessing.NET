@@ -295,7 +295,7 @@ namespace CamImageProcessing.NET
         /// <summary>
         /// Abel inversion procedure:
         /// 1. Uses data provided by the class
-        ///     - Xlist (input x array)
+        ///     - Xlist (input x array) 
         ///     - Coefficients of the fit polyN (not y-array itself)
         /// 2. Calculates extended xExt[] from left zero crossing to right
         /// 3. Calculates the solution of the integral equation with the _polyN_ fit function
