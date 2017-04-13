@@ -66,6 +66,7 @@
             this.ApplyButton = new System.Windows.Forms.Button();
             this.ColorMapCombobox = new System.Windows.Forms.ComboBox();
             this.FrameImage_button = new System.Windows.Forms.Button();
+            this.ApplyFOV_button = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FOV_Y_numericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.FOV_X_numericUpDown)).BeginInit();
@@ -141,6 +142,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.ApplyFOV_button);
+            this.groupBox1.Controls.Add(this.FrameImage_button);
             this.groupBox1.Controls.Add(this.FOV_Y_numericUpDown);
             this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.FOV_X_numericUpDown);
@@ -209,7 +212,7 @@
             this.SaveImages_button.Name = "SaveImages_button";
             this.SaveImages_button.Size = new System.Drawing.Size(75, 23);
             this.SaveImages_button.TabIndex = 14;
-            this.SaveImages_button.Text = "Save";
+            this.SaveImages_button.Text = "Save PNG";
             this.SaveImages_button.UseVisualStyleBackColor = true;
             this.SaveImages_button.Click += new System.EventHandler(this.SaveImages_button_Click);
             // 
@@ -430,7 +433,7 @@
             this.ResetButton.Name = "ResetButton";
             this.ResetButton.Size = new System.Drawing.Size(75, 23);
             this.ResetButton.TabIndex = 2;
-            this.ResetButton.Text = "Reset";
+            this.ResetButton.Text = "Reset Image";
             this.ResetButton.UseVisualStyleBackColor = true;
             this.ResetButton.Click += new System.EventHandler(this.ResetButton_Click);
             // 
@@ -457,20 +460,29 @@
             // 
             // FrameImage_button
             // 
-            this.FrameImage_button.Location = new System.Drawing.Point(12, 439);
+            this.FrameImage_button.Location = new System.Drawing.Point(6, 46);
             this.FrameImage_button.Name = "FrameImage_button";
-            this.FrameImage_button.Size = new System.Drawing.Size(114, 23);
+            this.FrameImage_button.Size = new System.Drawing.Size(100, 23);
             this.FrameImage_button.TabIndex = 7;
             this.FrameImage_button.Text = "Frame Image";
             this.FrameImage_button.UseVisualStyleBackColor = true;
             this.FrameImage_button.Click += new System.EventHandler(this.FrameImage_button_Click);
+            // 
+            // ApplyFOV_button
+            // 
+            this.ApplyFOV_button.Location = new System.Drawing.Point(139, 302);
+            this.ApplyFOV_button.Name = "ApplyFOV_button";
+            this.ApplyFOV_button.Size = new System.Drawing.Size(76, 23);
+            this.ApplyFOV_button.TabIndex = 19;
+            this.ApplyFOV_button.Text = "Apply FOV";
+            this.ApplyFOV_button.UseVisualStyleBackColor = true;
+            this.ApplyFOV_button.Click += new System.EventHandler(this.ApplyFOV_button_Click);
             // 
             // MainControlWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(754, 509);
-            this.Controls.Add(this.FrameImage_button);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.progressBar1);
@@ -536,6 +548,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.NumericUpDown FOV_Y_numericUpDown;
         private System.Windows.Forms.Button FrameImage_button;
+        private System.Windows.Forms.Button ApplyFOV_button;
     }
 }
 

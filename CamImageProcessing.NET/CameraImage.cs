@@ -19,7 +19,22 @@ namespace CamImageProcessing.NET
     class CameraImage
     {
         // *** Properties ***
-        // Image
+        // Privates
+
+        /// <summary>
+        /// Field of view (FOV) X size in mm.
+        /// Depends on the lens focal distance, generally needs a calibration measurement to define.
+        /// </summary>
+        private double fovx;
+
+        /// <summary>
+        /// Field of view (FOV) Y size in mm.
+        /// Depends on the lens focal distance, generally needs a calibration measurement to define.
+        /// </summary>
+        private double fovy;
+
+
+        // Publics
         public Mat SrcMat
         { get; set; }
 
@@ -102,6 +117,39 @@ namespace CamImageProcessing.NET
                 return (Int32)SrcMat.Total;
             }
         }
+
+        /// <summary>
+        /// Get/Set the private field of view (FOV) X size in mm.
+        /// Depends on the lens focal distance, generally needs a calibration measurement to define.
+        /// </summary>
+        public double FOVX
+        {
+            get
+            {
+                return fovx;
+            }
+            set
+            {
+                fovx = value;
+            }
+        }
+
+        /// <summary>
+        /// Get/Set the private field of view (FOV) Y size in mm.
+        /// Depends on the lens focal distance, generally needs a calibration measurement to define.
+        /// </summary>
+        public double FOVY
+        {
+            get
+            {
+                return fovy;
+            }
+            set
+            {
+                fovy = value;
+            }
+        }
+
         // Fills lists of min/max and locations
         private void MinMax()
         {

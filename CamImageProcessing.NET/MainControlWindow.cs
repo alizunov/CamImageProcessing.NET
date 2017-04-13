@@ -582,5 +582,18 @@ namespace CamImageProcessing.NET
         {
 
         }
+
+        /// <summary>
+        /// Rescale X and Y of the Processed Image according to the FOV-X and FOV-Y.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ApplyFOV_button_Click(object sender, EventArgs e)
+        {
+            ProcessedImage.FOVX = Convert.ToDouble(FOV_X_numericUpDown.Value);
+            ProcessedImage.FOVY = Convert.ToDouble(FOV_Y_numericUpDown.Value);
+            // Do not change the image - its X, Y are in pixels.
+            // Rescale ALL slices from the list.
+        }
     }
 }
