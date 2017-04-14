@@ -16,7 +16,7 @@ using Emgu.Util;
 
 namespace CamImageProcessing.NET
 {
-    class CameraImage
+    public class CameraImage
     {
         // *** Properties ***
         // Privates

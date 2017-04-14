@@ -40,6 +40,9 @@
             this.ActiveSlice_numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.FitSlice_button = new System.Windows.Forms.Button();
             this.SavePane_button = new System.Windows.Forms.Button();
+            this.ChangeXaxisUnits_comboBox = new System.Windows.Forms.ComboBox();
+            this.XaxisUnits_label = new System.Windows.Forms.Label();
+            this.SaveCurve_button = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.CurveNumber_numericUpDown)).BeginInit();
             this.ProcessSlice_groupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FitPolyOrder_numericUpDown)).BeginInit();
@@ -74,7 +77,7 @@
             // 
             // CurveNumber_numericUpDown
             // 
-            this.CurveNumber_numericUpDown.Location = new System.Drawing.Point(12, 536);
+            this.CurveNumber_numericUpDown.Location = new System.Drawing.Point(12, 565);
             this.CurveNumber_numericUpDown.Name = "CurveNumber_numericUpDown";
             this.CurveNumber_numericUpDown.Size = new System.Drawing.Size(57, 20);
             this.CurveNumber_numericUpDown.TabIndex = 2;
@@ -82,7 +85,7 @@
             // 
             // RemoveCurve_button
             // 
-            this.RemoveCurve_button.Location = new System.Drawing.Point(75, 536);
+            this.RemoveCurve_button.Location = new System.Drawing.Point(75, 565);
             this.RemoveCurve_button.Name = "RemoveCurve_button";
             this.RemoveCurve_button.Size = new System.Drawing.Size(75, 23);
             this.RemoveCurve_button.TabIndex = 3;
@@ -99,10 +102,10 @@
             this.ProcessSlice_groupBox.Controls.Add(this.FitSlice_button);
             this.ProcessSlice_groupBox.Location = new System.Drawing.Point(238, 536);
             this.ProcessSlice_groupBox.Name = "ProcessSlice_groupBox";
-            this.ProcessSlice_groupBox.Size = new System.Drawing.Size(420, 75);
+            this.ProcessSlice_groupBox.Size = new System.Drawing.Size(420, 81);
             this.ProcessSlice_groupBox.TabIndex = 4;
             this.ProcessSlice_groupBox.TabStop = false;
-            this.ProcessSlice_groupBox.Text = "Process";
+            this.ProcessSlice_groupBox.Text = "Process slice";
             this.ProcessSlice_groupBox.Enter += new System.EventHandler(this.ProcessSlice_groupBox_Enter);
             // 
             // ApproxMethodOutside_comboBox
@@ -161,11 +164,41 @@
             this.SavePane_button.UseVisualStyleBackColor = true;
             this.SavePane_button.Click += new System.EventHandler(this.SavePane_button_Click);
             // 
+            // ChangeXaxisUnits_comboBox
+            // 
+            this.ChangeXaxisUnits_comboBox.FormattingEnabled = true;
+            this.ChangeXaxisUnits_comboBox.Location = new System.Drawing.Point(75, 538);
+            this.ChangeXaxisUnits_comboBox.Name = "ChangeXaxisUnits_comboBox";
+            this.ChangeXaxisUnits_comboBox.Size = new System.Drawing.Size(75, 21);
+            this.ChangeXaxisUnits_comboBox.TabIndex = 6;
+            this.ChangeXaxisUnits_comboBox.SelectedIndexChanged += new System.EventHandler(this.ChangeXaxisUnits_comboBox_SelectedIndexChanged);
+            // 
+            // XaxisUnits_label
+            // 
+            this.XaxisUnits_label.AutoSize = true;
+            this.XaxisUnits_label.Location = new System.Drawing.Point(12, 541);
+            this.XaxisUnits_label.Name = "XaxisUnits_label";
+            this.XaxisUnits_label.Size = new System.Drawing.Size(60, 13);
+            this.XaxisUnits_label.TabIndex = 7;
+            this.XaxisUnits_label.Text = "X-axis units";
+            // 
+            // SaveCurve_button
+            // 
+            this.SaveCurve_button.Location = new System.Drawing.Point(75, 594);
+            this.SaveCurve_button.Name = "SaveCurve_button";
+            this.SaveCurve_button.Size = new System.Drawing.Size(75, 23);
+            this.SaveCurve_button.TabIndex = 8;
+            this.SaveCurve_button.Text = "Save curve";
+            this.SaveCurve_button.UseVisualStyleBackColor = true;
+            // 
             // Graphics1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(670, 614);
+            this.ClientSize = new System.Drawing.Size(670, 623);
+            this.Controls.Add(this.SaveCurve_button);
+            this.Controls.Add(this.XaxisUnits_label);
+            this.Controls.Add(this.ChangeXaxisUnits_comboBox);
             this.Controls.Add(this.SavePane_button);
             this.Controls.Add(this.ProcessSlice_groupBox);
             this.Controls.Add(this.RemoveCurve_button);
@@ -180,6 +213,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.FitPolyOrder_numericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ActiveSlice_numericUpDown)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -196,5 +230,8 @@
         private System.Windows.Forms.Button Abel_button;
         private System.Windows.Forms.ComboBox ApproxMethodOutside_comboBox;
         private System.Windows.Forms.Button SavePane_button;
+        private System.Windows.Forms.ComboBox ChangeXaxisUnits_comboBox;
+        private System.Windows.Forms.Label XaxisUnits_label;
+        private System.Windows.Forms.Button SaveCurve_button;
     }
 }

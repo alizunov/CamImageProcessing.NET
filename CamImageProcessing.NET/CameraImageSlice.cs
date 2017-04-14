@@ -63,7 +63,11 @@ namespace CamImageProcessing.NET
         }
 
 
-        // Averages columns like following: averaged_column = sum(columns)/Ncolumns, returns List<double>.
+
+        /// <summary>
+        /// Averages columns like following: averaged_column = sum(columns)/Ncolumns, returns List<double>.
+        /// </summary>
+        /// <returns></returns>
         public List<double> AverageCols()
         {
             List<double> averagedList = new List<double>();
@@ -77,7 +81,28 @@ namespace CamImageProcessing.NET
             }
             return averagedList;
         }
-    // class
+    
+        /// <summary>
+        /// Averages rows like following: averaged_row = sum(rows)/Nrows, returns List<double>.
+        /// </summary>
+        /// <returns></returns>
+        public List<double> AverageRows()
+        {
+            List<double> averagedList = new List<double>();
+            double v = 0;
+            for (int icol=0; icol<Xsize; icol++)
+            {
+                v = 0;
+                for (int irow = 0; irow < Ysize; irow++)
+                    v += SliceMatrix[irow, icol];
+                averagedList.Add(v / Ysize);
+            }
+            return averagedList;
+        }
+    
+        
+        
+        // class
     }
 // namespace
 }

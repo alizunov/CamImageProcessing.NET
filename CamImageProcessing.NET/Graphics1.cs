@@ -14,6 +14,101 @@ namespace CamImageProcessing.NET
 {
     public partial class Graphics1 : Form
     {
+        /// <summary>
+        /// Units of X-axis for all curves (profiles)
+        /// </summary>
+        public enum x_axis_units : byte { pixel=0, mm=1 };
+        private x_axis_units xau;
+
+        public x_axis_units XAxisUnits
+        {
+            get
+            {
+                return xau;
+            }
+            set
+            {
+                xau = value;
+            }
+        }
+
+        /// <summary>
+        /// Definition of X-axis shift for V-slices
+        /// </summary>
+        private double x0_V;
+        /// <summary>
+        /// Definition of X-axis shift for H-slices
+        /// </summary>
+        private double x0_H;
+        /// <summary>
+        /// Definition of X-axis scale for V-slices
+        /// </summary>
+        private double xscale_V;
+        /// <summary>
+        /// Definition of X-axis scale for H-slices
+        /// </summary>
+        private double xscale_H;
+        
+        /// <summary>
+        /// Get/Set of X-axis shift for V-slices
+        /// </summary>
+        public double X0_V
+        {
+            get
+            {
+                return x0_V;
+            }
+            set
+            {
+                x0_V = value;
+            }
+        }
+        /// <summary>
+        /// Get/Set of X-axis shift for H-slices
+        /// </summary>
+        public double X0_H
+        {
+            get
+            {
+                return x0_H;
+            }
+            set
+            {
+                x0_H = value;
+            }
+        }
+        /// <summary>
+        /// Get/Set of X-axis scale for V-slices
+        /// </summary>
+        public double Xscale_V
+        {
+            get
+            {
+                return xscale_V;
+            }
+            set
+            {
+                xscale_V = value;
+            }
+        }
+        /// <summary>
+        /// Get/Set of X-axis scale for H-slices
+        /// </summary>
+        public double Xscale_H
+        {
+            get
+            {
+                return xscale_H;
+            }
+            set
+            {
+                xscale_H = value;
+            }
+        }
+        
+
+
+
         // ZedGraph items
         public GraphPane pane
         { get; set; }
@@ -38,6 +133,11 @@ namespace CamImageProcessing.NET
             ApproxMethodOutside_comboBox.Items.AddRange(new object[] { "Linear",
                 "Quad. positive",
                 "Quad negative"});
+            // Set X-axis units for slice profiles plotted in the GraphPane
+            ChangeXaxisUnits_comboBox.Items.AddRange(new object[] {"Pixels",
+                        "mm"});
+            ChangeXaxisUnits_comboBox.SelectedIndex = 0;
+            xau = x_axis_units.pixel;
 
         } // ctor
 
@@ -80,7 +180,7 @@ namespace CamImageProcessing.NET
             try
             {
                 pane.Title.Text = "Slice profiles";
-                pane.XAxis.Title.Text = "Pixel";
+                //pane.XAxis.Title.Text = "Pixel";
                 pane.YAxis.Title.Text = "Intensity, 10^" + (-1 * Math.Log10(CurveNormCoefficient)).ToString() + " counts";
                 LineItem SliceCurve = pane.AddCurve(CurveName, pointlist, color, SymbolType.None);
                 SliceCurve.Line.IsVisible = true;
@@ -109,6 +209,19 @@ namespace CamImageProcessing.NET
             }
             else
                 ProcessSlice_groupBox.Enabled = false;
+        }
+
+        /// <summary>
+        /// Rescale a profile using the formula NewX = k * OldX + b
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void RescaleCurveXaxis(CurveItem crv, double k, double b)
+        {
+            PointPairList ppl = new PointPairList();
+            for (int ip = 0; ip < crv.Points.Count; ip++)
+                ppl.Add(crv.Points[ip].X * k + b, crv.Points[ip].Y);
+            crv.Points = ppl;
         }
 
         private void Graphics1_Load(object sender, EventArgs e)
@@ -272,6 +385,63 @@ namespace CamImageProcessing.NET
         private void SavePane_button_Click(object sender, EventArgs e)
         {
             zedGraphControl1.SaveAsBitmap();
+        }
+
+        private void ChangeXaxisUnits_comboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Check FOV-X and FOV-Y, if both are not zero:
+            // Go through curve list, rescale.
+            if (xscale_H == 0 || xscale_V == 0)
+                MessageBox.Show("FOV-X or FOV-Y is zero", "", MessageBoxButtons.OK);
+            else
+            {
+                double kh, kv, bh, bv;
+                double xmin = Double.MaxValue;
+                double xmax = Double.MinValue;
+                if (ChangeXaxisUnits_comboBox.SelectedIndex == 1) // Pixels -> mm
+                {
+                    bh = x0_H;
+                    bv = x0_V;
+                    kh = xscale_H;
+                    kv = xscale_V;
+                    // Change X axis title.
+                    pane.XAxis.Title.Text = "Coordinate, mm";
+                    // Change X axis units enum
+                    XAxisUnits = x_axis_units.mm;
+                }
+                else // mm -> Pixels
+                {
+                    bh = -x0_H / xscale_H;
+                    bv = -x0_V / xscale_V;
+                    kh = 1 / xscale_H;
+                    kv = 1 / xscale_V;
+                    // Change X axis title.
+                    pane.XAxis.Title.Text = "Coordinate, pixel";
+                    // Change X axis units enum
+                    XAxisUnits = x_axis_units.pixel;
+                }
+                foreach (CurveItem crv in pane.CurveList)
+                {
+                    // Separate H- and V-profiles by name
+                    if (crv.Label.Text.Substring(6, 1) == "V")
+                        RescaleCurveXaxis(crv, kv, bv);
+                    else if (crv.Label.Text.Substring(6, 1) == "H")
+                        RescaleCurveXaxis(crv, kh, bh);
+                    else // Error parsing name
+                        Console.WriteLine("Error in curve name: " + crv.Label.Text + " - neither Vertical nor Horizontal, rescale is not done.");
+                    xmin = (crv.Points[0].X < xmin) ? crv.Points[0].X : xmin;
+                    xmax = (crv.Points[crv.Points.Count - 1].X > xmax) ? crv.Points[crv.Points.Count - 1].X : xmax;
+                }
+                // Change XAxis margins
+                pane.XAxis.Scale.Min = xmin;
+                pane.XAxis.Scale.Max = xmax;
+
+                // Update axis
+                zedGraphControl1.AxisChange();
+                // Update graph pane
+                zedGraphControl1.Invalidate();
+
+            }
         }
     }
 }

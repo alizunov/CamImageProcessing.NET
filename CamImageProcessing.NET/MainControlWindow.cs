@@ -148,7 +148,6 @@ namespace CamImageProcessing.NET
 
         }   // MainControlWindow
         
-
          // Open header file
        private void button1_Click(object sender, EventArgs e)
         {
@@ -497,7 +496,7 @@ namespace CamImageProcessing.NET
                 int h = ProcessedImage.SizeY - 2;
                 Color col = (Color)SliceColor_comboBox.SelectedItem;
                 Rectangle sliceROI = new Rectangle(x, 0, w, h);
-                string name = "Slice-" + SliceList.Count.ToString();
+                string name = "Slice-V-" + SliceList.Count.ToString();
                 CameraImageSlice slice = new CameraImageSlice(ProcessedImage.SrcMat, sliceROI, name, col);
                 // Update lists
                 SliceList.Add(slice);
@@ -505,11 +504,51 @@ namespace CamImageProcessing.NET
                 SliceColorList.Add(col);
 
                 SliceCount_label.Text = "Slice count: " + SliceList.Count.ToString();
-                GraphForm1.AddSliceProfile(SliceList.Last().AverageCols(), -slice.Ysize / 2, 1, name, col, true);
+                double xshift = 0;
+                double xscale = 0;
+                // Depending on the X-axis units in the GraphPane, set Xshift and Xscale for the new curve
+                if (GraphForm1.XAxisUnits == Graphics1.x_axis_units.pixel)
+                {
+                    xshift = -slice.Ysize / 2;
+                    xscale = 1;
+                }
+                else if (GraphForm1.XAxisUnits == Graphics1.x_axis_units.mm)
+                {
+                    xshift = -ProcessedImage.FOVY / 2;
+                    xscale = ProcessedImage.FOVY / ProcessedImage.SizeY;
+                }
+
+                GraphForm1.AddSliceProfile(SliceList.Last().AverageCols(), xshift, xscale, name, col, true);
             }
             else if (HorV_slice_comboBox.SelectedIndex == 1) // Horizontal
             {
-                // Add code here
+                int y = (int)SliceMargin1_numericUpDown.Value;
+                int h = (int)(SliceMargin2_numericUpDown.Value - SliceMargin1_numericUpDown.Value);
+                int w = ProcessedImage.SizeX - 2;
+                Color col = (Color)SliceColor_comboBox.SelectedItem;
+                Rectangle sliceROI = new Rectangle(0, y, w, h);
+                string name = "Slice-H-" + SliceList.Count.ToString();
+                CameraImageSlice slice = new CameraImageSlice(ProcessedImage.SrcMat, sliceROI, name, col);
+                // Update lists
+                SliceList.Add(slice);
+                SliceROIlist.Add(sliceROI);
+                SliceColorList.Add(col);
+
+                SliceCount_label.Text = "Slice count: " + SliceList.Count.ToString();
+                double xshift = 0;
+                double xscale = 0;
+                // Depending on the X-axis units in the GraphPane, set Xshift and Xscale for the new curve
+                if (GraphForm1.XAxisUnits == Graphics1.x_axis_units.pixel)
+                {
+                    xshift = -slice.Xsize / 2;
+                    xscale = 1;
+                }
+                else if (GraphForm1.XAxisUnits == Graphics1.x_axis_units.mm)
+                {
+                    xshift = -ProcessedImage.FOVX / 2;
+                    xscale = ProcessedImage.FOVX / ProcessedImage.SizeX;
+                }
+                GraphForm1.AddSliceProfile(SliceList.Last().AverageRows(), xshift, xscale, name, col, true);
             }
         }
 
@@ -593,7 +632,12 @@ namespace CamImageProcessing.NET
             ProcessedImage.FOVX = Convert.ToDouble(FOV_X_numericUpDown.Value);
             ProcessedImage.FOVY = Convert.ToDouble(FOV_Y_numericUpDown.Value);
             // Do not change the image - its X, Y are in pixels.
-            // Rescale ALL slices from the list.
+            // Do not rescale slices and profiles - it can be done changing axis units in the Graph window.
+            // Set corresponding properties in the GraphForm1 class
+            GraphForm1.X0_V = 0;
+            GraphForm1.Xscale_V = ProcessedImage.FOVY / ProcessedImage.SizeY;
+            GraphForm1.X0_H = 0;
+            GraphForm1.Xscale_H = ProcessedImage.FOVX / ProcessedImage.SizeX;
         }
     }
 }
