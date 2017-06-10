@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace CamImageProcessing.NET
 {
+    /// <summary>
+    /// Header of a image file (originally developed for pco.edge 5.5 sCMOS camera
+    /// Rev. 10 June 2017: added TimeStamp in the Comment section of the header
+    /// </summary>
     class CameraImageHeader : Tuple<string, string, string, string, double, double, double, Tuple<UInt32, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32, Tuple<UInt32, double, double, double, double, double, string>>>
     {
         public const string Version = "1.0 for standalone image files";
@@ -85,13 +89,31 @@ namespace CamImageProcessing.NET
         // Check List<string> and create a header instance if good.
         public CameraImageHeader TryTextList( List<string> textlist )
         {
-            if ( textlist.Count() != NumberOfFields )
-                return null;
+            // There are 21 header fields accroding to the approved specification. The list may contain more than 21 lines:
+            // then the remaining starting from the line #21 will be considered as a multi-line comment string.
+            int NumberOfLines = textlist.Count();
+
             string CameraName = textlist[0];
             string CameraSN = textlist[1];
             string ShutterMode = textlist[2];
             string TimingMode = textlist[3];
-            string Comment = textlist[20];
+
+            string Comment = "";
+            StringBuilder HeaderCommentMultiLine = new StringBuilder();
+
+            if (NumberOfLines == NumberOfFields)
+                Comment = textlist[20];
+            else if (NumberOfLines > NumberOfFields)
+            {
+                for (int iline = NumberOfFields; iline < NumberOfLines; iline++)
+                    HeaderCommentMultiLine.Append(textlist[iline]).Append("\n");
+                Comment = HeaderCommentMultiLine.ToString();
+            }
+            else // NumberOfLines < NumberOfField
+            {
+                Console.WriteLine("Error parsing header: number of lines less than the number of fields (21).");
+                return null;
+            }
 
             double SensorTemperature = 0;
             double CameraTemperature = 0;
