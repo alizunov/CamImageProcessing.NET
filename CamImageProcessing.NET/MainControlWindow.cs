@@ -138,9 +138,9 @@ namespace CamImageProcessing.NET
             // Field of view input: focal plane object size in mm
             // EO lens L=1200: FOV = 410x340mm
             FOV_X_numericUpDown.Maximum = 1000;
-            FOV_X_numericUpDown.Value = 410;
+            FOV_X_numericUpDown.Value = 295;
             FOV_Y_numericUpDown.Maximum = 1000;
-            FOV_Y_numericUpDown.Value = 340;
+            FOV_Y_numericUpDown.Value = 255;
 
             // Create a form for graphics
             GraphForm1 = new Graphics1();
