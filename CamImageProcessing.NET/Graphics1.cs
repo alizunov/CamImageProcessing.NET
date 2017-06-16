@@ -443,5 +443,41 @@ namespace CamImageProcessing.NET
 
             }
         }
+
+        private void SaveCurve_button_Click(object sender, EventArgs e)
+        {
+
+            System.IO.Stream myStream;
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
+            saveFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+            saveFileDialog1.FilterIndex = 2;
+            saveFileDialog1.RestoreDirectory = true;
+
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                if ((myStream = saveFileDialog1.OpenFile()) != null)
+                {
+                    myStream.Close();
+                    // Code to write the stream goes here.
+                    string crvFileName = saveFileDialog1.FileName;
+                    try
+                    {
+                        System.IO.StreamWriter sw = new System.IO.StreamWriter(crvFileName);
+                        int CurveNumber = (int)ActiveSlice_numericUpDown.Value;
+                        CurveItem ActiveCurve = pane.CurveList.ElementAt(CurveNumber);
+                        for (int ip = 0; ip < ActiveCurve.Points.Count; ip++)
+                            sw.Write(ActiveCurve.Points[ip].X + " " + ActiveCurve.Points[ip].Y / CurveNormCoefficient + "\n");
+                        sw.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error: Could not write curve to file. Original error: " + ex.Message);
+                    }
+
+                }
+            }
+
+        }
     }
 }
