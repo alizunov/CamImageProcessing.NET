@@ -464,17 +464,22 @@ namespace CamImageProcessing.NET
                     try
                     {
                         System.IO.StreamWriter sw = new System.IO.StreamWriter(crvFileName);
-                        int CurveNumber = (int)ActiveSlice_numericUpDown.Value;
+                        int CurveNumber = (int)CurveNumber_numericUpDown.Value;
                         CurveItem ActiveCurve = pane.CurveList.ElementAt(CurveNumber);
+                        if (ActiveCurve.Label.Text.Substring(6, 1) == "H") // Horizontal
+                            sw.Write("X-profile\n");
+                        else
+                            sw.Write("Y-profile\n");
                         for (int ip = 0; ip < ActiveCurve.Points.Count; ip++)
                             sw.Write(ActiveCurve.Points[ip].X + " " + ActiveCurve.Points[ip].Y / CurveNormCoefficient + "\n");
                         sw.Close();
+                        MessageBox.Show("Curve saved: " + ActiveCurve.Label.Text);
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine("Error: Could not write curve to file. Original error: " + ex.Message);
                     }
-
+                    
                 }
             }
 
