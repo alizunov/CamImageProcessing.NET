@@ -484,5 +484,56 @@ namespace CamImageProcessing.NET
             }
 
         }
+
+        private void saveAllcurves_button_Click(object sender, EventArgs e)
+        {
+            System.IO.Stream myStream;
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
+            saveFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+            saveFileDialog1.FilterIndex = 2;
+            saveFileDialog1.RestoreDirectory = true;
+
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+               // Base file name and extension
+               string crvFileName = saveFileDialog1.FileName;
+               string crvFileDir = System.IO.Path.GetDirectoryName(crvFileName);
+               string crvFileBase = System.IO.Path.GetFileNameWithoutExtension(crvFileName);
+               string crvFileExt = System.IO.Path.GetExtension(crvFileName);
+               int NcurvesTotal = pane.CurveList.Count;
+               // Loop over curves in the pane's list
+               for (int CurveNumber=0; CurveNumber<NcurvesTotal; CurveNumber++)
+                {
+                   // Each curve's file name is build from the base adding the curve number
+                   string crvFileNameEach = crvFileDir + "\\" + crvFileBase + "-" + CurveNumber + crvFileExt;
+                   if ( (myStream = System.IO.File.Open(crvFileNameEach, System.IO.FileMode.Create)) != null )
+                    {
+                        // MessageBox.Show("Curve file: " + crvFileNameEach);
+                        myStream.Close();
+                        // Code to write the stream goes here.
+                        try
+                        {
+                            System.IO.StreamWriter sw = new System.IO.StreamWriter(crvFileNameEach);
+                            CurveItem ActiveCurve = pane.CurveList.ElementAt(CurveNumber);
+                            if (ActiveCurve.Label.Text.Substring(6, 1) == "H") // Horizontal
+                                sw.Write("X-profile\n");
+                            else
+                                sw.Write("Y-profile\n");
+                            for (int ip = 0; ip < ActiveCurve.Points.Count; ip++)
+                                sw.Write(ActiveCurve.Points[ip].X + " " + ActiveCurve.Points[ip].Y / CurveNormCoefficient + "\n");
+                            sw.Close();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Error: Could not write curve to file. Original error: " + ex.Message);
+                        }
+
+                    }
+
+                }
+                MessageBox.Show("Curves saved: " + NcurvesTotal);
+            }
+        }
     }
 }
